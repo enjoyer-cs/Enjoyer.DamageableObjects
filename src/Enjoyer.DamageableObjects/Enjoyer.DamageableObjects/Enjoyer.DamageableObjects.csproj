@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <AppDesignerFolder>Properties</AppDesignerFolder>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+
+        <LangVersion>preview</LangVersion>
+        <TargetFramework>net48</TargetFramework>
+
+        <Configurations>Debug;Release</Configurations>
+        <Platform>x64</Platform>
+        <PlatformTarget>x64</PlatformTarget>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+
+        <FileAlignment>512</FileAlignment>
+        <Nullable>enable</Nullable>
+        <ErrorReport>prompt</ErrorReport>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <Deterministic>true</Deterministic>
+
+        <Optimize>true</Optimize>
+        <DebugType>embedded</DebugType>
+    </PropertyGroup>
+
+    <Choose>
+        <When Condition="$(EXILED_REFERENCES) != ''">
+            <PropertyGroup>
+                <References>$(EXILED_REFERENCES)</References>
+            </PropertyGroup>
+        </When>
+        <When Condition="$(SL_REFERENCES) != ''">
+            <PropertyGroup>
+                <References>$(SL_REFERENCES)</References>
+            </PropertyGroup>
+        </When>
+    </Choose>
+
+    <ItemGroup>
+        <Reference Include="0Harmony" HintPath="$(References)/0Harmony.dll"/>
+
+        <Reference Include="Assembly-CSharp-Publicized" HintPath="$(References)/Assembly-CSharp-Publicized.dll"/>
+
+        <Reference Include="CommandSystem.Core" HintPath="$(References)/CommandSystem.Core.dll"/>
+        <Reference Include="Mirror" HintPath="$(References)/Mirror.dll"/>
+        <Reference Include="PluginAPI" HintPath="$(References)/PluginAPI.dll"/>
+        <Reference Include="Pooling" HintPath="$(References)/Pooling.dll"/>
+
+        <Reference Include="Exiled.API" HintPath="$(References)/Exiled.API.dll"/>
+        <Reference Include="Exiled.Events" HintPath="$(References)/Exiled.Events.dll"/>
+        <Reference Include="Exiled.Loader" HintPath="$(References)/Exiled.Loader.dll"/>
+
+        <Reference Include="UnityEngine.CoreModule" HintPath="$(References)/UnityEngine.CoreModule.dll"/>
+        <Reference Include="UnityEngine.PhysicsModule" HintPath="$(References)/UnityEngine.PhysicsModule.dll"/>
+
+        <Reference Include="MapEditorReborn" HintPath="$(References)/MapEditorReborn.dll"/>
+        <Reference Include="ProjectMER" HintPath="$(References)/ProjectMER.dll"/>
+    </ItemGroup>
+
+</Project>
