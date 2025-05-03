@@ -1,5 +1,4 @@
-﻿using AdminToys;
-using Exiled.API.Features;
+﻿using Exiled.API.Features;
 using Exiled.Events.EventArgs.Map;
 using Exiled.Events.EventArgs.Player;
 using Exiled.Events.EventArgs.Scp939;
@@ -63,7 +62,7 @@ public class DamageableComponent : MonoBehaviour
     protected float Health { get; set; }
 
     /// <summary>
-    ///     Дочерние объекты <see cref="Component.gameObject"/>
+    ///     Дочерние объекты <see cref="Component.gameObject" />
     /// </summary>
     public IReadOnlyCollection<GameObject>? ChildrenObjects { get; set; }
 
@@ -72,8 +71,10 @@ public class DamageableComponent : MonoBehaviour
         Health = MaxHealth;
 
         if (ChildrenObjects != null)
+        {
             foreach (GameObject child in ChildrenObjects)
                 child.gameObject.layer = WindowLayer;
+        }
 
         gameObject.layer = WindowLayer;
 
