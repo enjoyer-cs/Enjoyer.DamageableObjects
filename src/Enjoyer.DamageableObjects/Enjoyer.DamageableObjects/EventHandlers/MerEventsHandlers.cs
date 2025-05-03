@@ -1,0 +1,46 @@
+﻿#if MER
+using Enjoyer.DamageableObjects.API.Components;
+using Enjoyer.DamageableObjects.Configs;
+using Exiled.API.Features;
+using MapEditorReborn.Events.EventArgs;
+using MapEditorReborn.Events.Handlers;
+using System;
+using System.Linq;
+
+namespace Enjoyer.DamageableObjects;
+
+internal class MerEventHandlers : EventHandlers
+{
+    /// <inheritdoc />
+    internal override void RegisterEvents()
+    {
+        base.RegisterEvents();
+        Schematic.SchematicSpawned += OnSchematicSpawned;
+    }
+
+    /// <inheritdoc />
+    internal override void UnregisterEvents()
+    {
+        base.UnregisterEvents();
+        Schematic.SchematicSpawned -= OnSchematicSpawned;
+    }
+
+    private void OnSchematicSpawned(SchematicSpawnedEventArgs ev)
+    {
+        Log.Debug($"Invoked OnSchematicSpawned for schematic with name: {ev.Name}");
+
+        if (DoPlugin.PluginConfig.DamageableSchematics.Keys.FirstOrDefault(ds =>
+                string.Equals(ds, ev.Name, StringComparison.CurrentCultureIgnoreCase)) is not { } key ||
+            ev.Schematic.gameObject.TryGetComponent(typeof(DamageableComponent), out _))
+            return;
+
+        DoProperties props = DoPlugin.PluginConfig.DamageableSchematics[key];
+
+        DamageableComponent? component = ev.Schematic.gameObject.AddComponent<DamageableComponent>();
+
+        component.MaxHealth = props.MaxHealth;
+        component.ProtectionEfficacy = props.DamageResistance;
+        component.ChildrenObjects = ev.Schematic.AdminToyBases.Select(toy => toy.gameObject).ToList();
+    }
+}
+#endif
