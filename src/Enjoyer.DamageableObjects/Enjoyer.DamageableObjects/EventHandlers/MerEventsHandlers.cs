@@ -40,6 +40,7 @@ internal class MerEventHandlers : EventHandlers
 
         component.MaxHealth = props.MaxHealth;
         component.ProtectionEfficacy = props.DamageResistance;
+        component.AllowedDamageTypes = props.AllowedDamageTypes;
         component.ChildrenObjects = ev.Schematic.AdminToyBases.Select(toy => toy.gameObject).ToList();
     }
 }
