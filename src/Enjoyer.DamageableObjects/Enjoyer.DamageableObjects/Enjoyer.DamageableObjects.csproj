@@ -58,6 +58,7 @@
         <Reference Include="Exiled.Events" HintPath="$(References)/Exiled.Events.dll"/>
         <Reference Include="Exiled.Loader" HintPath="$(References)/Exiled.Loader.dll"/>
 
+        <Reference Include="UnityEngine.AudioModule" HintPath="$(References)/UnityEngine.AudioModule.dll"/>
         <Reference Include="UnityEngine.CoreModule" HintPath="$(References)/UnityEngine.CoreModule.dll"/>
         <Reference Include="UnityEngine.PhysicsModule" HintPath="$(References)/UnityEngine.PhysicsModule.dll"/>
 
