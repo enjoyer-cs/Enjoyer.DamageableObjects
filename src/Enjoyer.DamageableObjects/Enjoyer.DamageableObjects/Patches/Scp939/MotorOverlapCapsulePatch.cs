@@ -27,9 +27,9 @@ internal static class MotorOverlapCapsulePatch
     private static void HandleDetection(Collider detection, Player player, Scp939LungeAbility lunge)
     {
         if (detection.GetComponentInParent<DamageableComponent>() is not { } damageable ||
-            _processedComponents.Contains(damageable)) return;
+            _processedComponents.Contains(damageable) || !damageable.OnLunging(player, lunge, _processedComponents.IsEmpty()))
+            return;
 
-        damageable.OnLunging(player, lunge, _processedComponents.IsEmpty());
         _processedComponents.Add(damageable);
     }
 
