@@ -1,5 +1,7 @@
 ﻿using Exiled.API.Features;
 using Exiled.API.Features.Doors;
+using Exiled.Events.EventArgs.Map;
+using Exiled.Events.EventArgs.Player;
 using Interactables.Interobjects.DoorUtils;
 using PlayerRoles.PlayableScps.Scp939;
 
@@ -21,6 +23,22 @@ public sealed class DamageableDoor : DamageableComponent
     {
         Door.IgnoredDamage = _doorIgnoredDamage;
         base.Start();
+    }
+
+    /// <inheritdoc />
+    protected override void OnShot(ShotEventArgs ev)
+    {
+        if (ev.Firearm.Type is ItemType.ParticleDisruptor && !_doorIgnoredDamage.HasFlag(DoorDamageType.ParticleDisruptor))
+            return;
+
+        base.OnShot(ev);
+    }
+
+    /// <inheritdoc />
+    protected override void OnExploding(ExplodingGrenadeEventArgs ev)
+    {
+        if (_doorIgnoredDamage.HasFlag(DoorDamageType.Grenade))
+            base.OnExploding(ev);
     }
 
     /// <inheritdoc />
