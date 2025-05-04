@@ -1,18 +1,29 @@
 ﻿using Enjoyer.DamageableObjects.API.Components;
 using Enjoyer.DamageableObjects.Configs;
+using Enjoyer.DamageableObjects.Patches.Scp096;
 using Exiled.API.Enums;
 using Exiled.API.Features.Doors;
+using Exiled.Events.EventArgs.Scp096;
 using System.Collections.Generic;
 using System.Linq;
 using MapEvents = Exiled.Events.Handlers.Map;
+using Scp096Events = Exiled.Events.Handlers.Scp096;
 
 namespace Enjoyer.DamageableObjects;
 
 internal class EventHandlers
 {
-    internal virtual void RegisterEvents() => MapEvents.Generated += OnGenerated;
+    internal virtual void RegisterEvents()
+    {
+        MapEvents.Generated += OnGenerated;
+        Scp096Events.Enraging += OnEnraging;
+    }
 
-    internal virtual void UnregisterEvents() => MapEvents.Generated += OnGenerated;
+    internal virtual void UnregisterEvents()
+    {
+        MapEvents.Generated -= OnGenerated;
+        Scp096Events.Enraging -= OnEnraging;
+    }
 
     private static void OnGenerated()
     {
@@ -30,4 +41,6 @@ internal class EventHandlers
             }
         }
     }
+
+    private static void OnEnraging(EnragingEventArgs ev) => ChargingProcessHitsPatch._processedComponents.Remove(ev.Player);
 }
