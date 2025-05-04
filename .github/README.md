@@ -15,6 +15,7 @@ This plugin for Exiled adds support for **damageable objects** in SCP: Secret La
     - Micro HID
     - Secondary shot of Particle Disruptor
     - SCP-018 interaction
+    - Explosions
 
 - **Damageable MapEditorReborn Schematics**  
   Define custom schematics that can take damage and destroy after reaching 0 HP.
