@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using Exiled.API.Features;
+using HarmonyLib;
 using PlayerRoles.PlayableScps.Scp939;
 
 namespace Enjoyer.DamageableObjects.Patches.Events.Scp939;
@@ -14,5 +15,6 @@ internal static class TriggerLungePatch
     ///     Метод, вызываемый после исполнения <see cref="Scp939LungeAbility.TriggerLunge" />,
     ///     очищает <see cref="MotorOverlapCapsulePatch._processedComponents" />
     /// </summary>
-    private static void Postfix() => MotorOverlapCapsulePatch._processedComponents.Clear();
+    private static void Postfix(Scp939LungeAbility __instance) =>
+        MotorOverlapCapsulePatch._processedComponents.Remove(Player.Get(__instance.Owner));
 }

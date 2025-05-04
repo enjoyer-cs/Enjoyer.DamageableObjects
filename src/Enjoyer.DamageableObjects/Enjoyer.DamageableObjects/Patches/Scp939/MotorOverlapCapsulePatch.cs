@@ -22,15 +22,17 @@ internal static class MotorOverlapCapsulePatch
     /// <summary>
     ///     Компоненты, обработанные при последнем использовании <see cref="Scp939LungeAbility" />.
     /// </summary>
-    internal static List<DamageableComponent> _processedComponents { get; } = [];
+    internal static Dictionary<Player, List<DamageableComponent>> _processedComponents { get; } = [];
 
     private static void HandleDetection(Collider detection, Player player, Scp939LungeAbility lunge)
     {
+        List<DamageableComponent>? ignoreComponents = _processedComponents.GetOrAdd(player, () => []);
+
         if (detection.GetComponentInParent<DamageableComponent>() is not { } damageable ||
-            _processedComponents.Contains(damageable) || !damageable.OnLunging(player, lunge, _processedComponents.IsEmpty()))
+            ignoreComponents.Contains(damageable) || !damageable.OnLunging(player, lunge, _processedComponents[player].IsEmpty()))
             return;
 
-        _processedComponents.Add(damageable);
+        ignoreComponents.Add(damageable);
     }
 
     private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
