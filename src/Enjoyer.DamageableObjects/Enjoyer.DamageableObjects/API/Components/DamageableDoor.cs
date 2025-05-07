@@ -10,7 +10,7 @@ namespace Enjoyer.DamageableObjects.API.Components;
 public sealed class DamageableDoor : DamageableComponent
 {
     private DoorDamageType _doorIgnoredDamage =>
-        (DoorDamageType.Grenade | DoorDamageType.Weapon | DoorDamageType.Scp096 | DoorDamageType.ParticleDisruptor) ^ NotAffectToDamage;
+        (DoorDamageType.Grenade | DoorDamageType.Weapon | DoorDamageType.ParticleDisruptor) ^ NotAffectToDamage;
 
     public DoorDamageType NotAffectToDamage { get; set; }
 
@@ -44,6 +44,12 @@ public sealed class DamageableDoor : DamageableComponent
     /// <inheritdoc />
     protected internal override bool OnLunging(Player player, Scp939LungeAbility lunge, bool isMainTarget) =>
         !Door.IsFullyOpen && base.OnLunging(player, lunge, isMainTarget);
+
+    /// <inheritdoc />
+    protected internal override bool OnScp096Attacking(Player? player) => true;
+
+    /// <inheritdoc />
+    protected internal override bool OnCharging(Player? player, bool isMainTarget) => true;
 
     /// <inheritdoc />
     protected override void ProcessDamage(Player? player, float damage, float hitMarkerSize = 1f)

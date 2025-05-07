@@ -49,8 +49,6 @@ public class ProcessHitsPatch
                     if (!ignoreComponents.Contains(damageable) && damageable.OnCharging(player, ignoreComponents.IsEmpty()))
                         ignoreComponents.Add(damageable);
                     break;
-                default:
-                    return;
             }
         }
         catch (Exception ex)
