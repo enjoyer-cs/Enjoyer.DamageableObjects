@@ -120,8 +120,13 @@ public class DamageableComponent : MonoBehaviour
     public static float CalculateDamage(int efficacy, float damage, int armorPenetrationPercent) =>
         BodyArmorUtils.ProcessDamage(efficacy, damage, armorPenetrationPercent);
 
-    public float GetDamageMultiplier(DamageType damageType) =>
-        DamageMultipliers.TryGetValue(damageType, out float value) ? value : 1f;
+    public float GetDamageMultiplier(DamageType damageType)
+    {
+        if (_firearmDamageTypes.Contains(damageType) && !DamageMultipliers.ContainsKey(damageType))
+            return DamageMultipliers.TryGetValue(DamageType.Firearm, out float multiplier) ? multiplier : 1f;
+
+        return DamageMultipliers.TryGetValue(damageType, out float value) ? value : 1f;
+    }
 
     #endregion
 
