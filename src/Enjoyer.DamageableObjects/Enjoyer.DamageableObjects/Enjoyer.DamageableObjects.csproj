@@ -29,6 +29,7 @@
 
     <PropertyGroup Condition="'$(Configuration)' == 'MER'">
         <DefineConstants>MER</DefineConstants>
+        <TargetName>$(SolutionName)-MER</TargetName>
     </PropertyGroup>
 
     <Choose>
