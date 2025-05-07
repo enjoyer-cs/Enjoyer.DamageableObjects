@@ -25,7 +25,7 @@ public class DamageableComponent : MonoBehaviour
 {
     private const int _windowLayer = 14;
 
-    private static readonly IReadOnlyCollection<DamageType> _firearmDamageTypes =
+    private static IReadOnlyCollection<DamageType> _firearmDamageTypes { get; } =
     [
         DamageType.Firearm,
         DamageType.Crossvec,
@@ -64,13 +64,13 @@ public class DamageableComponent : MonoBehaviour
 
     protected virtual void SubscribeEvents()
     {
-        if (AllowedDamageTypes?.Contains(DamageType.Explosion) != false)
+        if (IsDamageTypeAllow(DamageType.Explosion))
             MapEvents.ExplodingGrenade += OnExploding;
 
-        if (AllowedDamageTypes?.Any(_firearmDamageTypes.Contains) != false)
+        if (IsDamageTypeAllow(_firearmDamageTypes))
             PlayerEvents.Shot += OnShot;
 
-        if (AllowedDamageTypes?.Contains(DamageType.Scp939) != false)
+        if (IsDamageTypeAllow(DamageType.Scp939, DamageType.Scp))
             Scp939Events.Clawed += OnClawed;
     }
 
@@ -127,6 +127,11 @@ public class DamageableComponent : MonoBehaviour
 
         return DamageMultipliers.TryGetValue(damageType, out float value) ? value : 1f;
     }
+
+    public virtual bool IsDamageTypeAllow(DamageType damageType) => AllowedDamageTypes?.Contains(damageType) != false;
+
+    public virtual bool IsDamageTypeAllow(params IEnumerable<DamageType> damageTypes) =>
+        AllowedDamageTypes?.Any(damageTypes.Contains) != false;
 
     #endregion
 
@@ -209,7 +214,7 @@ public class DamageableComponent : MonoBehaviour
     {
         Log.Debug(nameof(OnDisruptorSingleShot));
 
-        if (AllowedDamageTypes?.Any(type => type is DamageType.Firearm or DamageType.ParticleDisruptor) == false)
+        if (!IsDamageTypeAllow(DamageType.ParticleDisruptor, DamageType.Firearm))
             return false;
 
         damage *= GetDamageMultiplier(DamageType.ParticleDisruptor);
@@ -243,7 +248,7 @@ public class DamageableComponent : MonoBehaviour
 
     protected internal virtual bool OnLunging(Player player, Scp939LungeAbility lunge, bool isMainTarget)
     {
-        if (AllowedDamageTypes?.Contains(DamageType.Scp939) == false)
+        if (!IsDamageTypeAllow(DamageType.Scp939))
             return false;
 
         if (!isMainTarget)
@@ -264,7 +269,7 @@ public class DamageableComponent : MonoBehaviour
 
     protected internal virtual bool OnScp096Attacking(Player? player)
     {
-        if (AllowedDamageTypes?.Contains(DamageType.Scp096) == false) return false;
+        if (!IsDamageTypeAllow(DamageType.Scp096)) return false;
 
         ProcessDamage(player, Scp096AttackAbility.HumanDamage * GetDamageMultiplier(DamageType.Scp096));
         return true;
