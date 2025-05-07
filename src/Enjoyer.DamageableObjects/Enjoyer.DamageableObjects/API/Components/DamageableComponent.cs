@@ -45,6 +45,62 @@ public class DamageableComponent : MonoBehaviour
 
     public static CachedLayerMask ExplosionBlockerMask { get; } = new("Default", "CCTV", "Door");
 
+    #region Properties
+
+    /// <summary>
+    ///     Получает или задаёт максимальное здоровье объекта.
+    /// </summary>
+    public virtual uint MaxHealth { get; set; }
+
+    /// <summary>
+    ///     Получает или задаёт эффективность защиты против урона, зависящего от неё.
+    /// </summary>
+    public virtual int ProtectionEfficacy { get; set; }
+
+    /// <summary>
+    ///     Лист <see cref="DamageType" />, с помощью которых можно наносить урон объекту.<br />
+    ///     Если <see langword="null" />, объект будет получать урон от всех <see cref="DamageType" />
+    /// </summary>
+    public virtual List<DamageType>? AllowedDamageTypes { get; set => field = value?.IsEmpty() is true ? null : value; }
+
+    public virtual Dictionary<DamageType, float> DamageMultipliers { get; set => field = value ?? []; } = [];
+
+    /// <summary>
+    ///     Получает или задаёт делегат, вызываемый после нанесения фатального урона объекту.<br />
+    /// </summary>
+    /// <remarks>
+    ///     <list type="number">
+    ///         <listheader>
+    ///             <term>Передаёт аргументы:</term>
+    ///         </listheader>
+    ///         <item>
+    ///             <term>
+    ///                 <see cref="GameObject" />
+    ///             </term>
+    ///             <description>- Экземпляр уничтоженного объекта.</description>
+    ///         </item>
+    ///         <item>
+    ///             <term>
+    ///                 <see cref="ReferenceHub" />
+    ///             </term>
+    ///             <description>- Принадлежит игроку, который нанёс финальный урон.</description>
+    ///         </item>
+    ///     </list>
+    /// </remarks>
+    public Action<GameObject, ReferenceHub?>? OnDestroyedByDamage { get; set; }
+
+    /// <summary>
+    ///     Получает или задаёт текущее значение здоровья объекта с этим компонентом.
+    /// </summary>
+    protected float Health { get; set; }
+
+    /// <summary>
+    ///     Дочерние объекты <see cref="Component.gameObject" />
+    /// </summary>
+    public IReadOnlyCollection<GameObject>? ChildrenObjects { get; set; }
+
+    #endregion
+
     #region Init
 
     protected virtual void Start()
@@ -134,62 +190,6 @@ public class DamageableComponent : MonoBehaviour
 
     public virtual bool IsDamageTypeAllow(params IEnumerable<DamageType> damageTypes) =>
         AllowedDamageTypes?.Any(damageTypes.Contains) != false;
-
-    #endregion
-
-    #region Properties
-
-    /// <summary>
-    ///     Получает или задаёт максимальное здоровье объекта.
-    /// </summary>
-    public virtual uint MaxHealth { get; set; }
-
-    /// <summary>
-    ///     Получает или задаёт эффективность защиты против урона, зависящего от неё.
-    /// </summary>
-    public virtual int ProtectionEfficacy { get; set; }
-
-    /// <summary>
-    ///     Лист <see cref="DamageType" />, с помощью которых можно наносить урон объекту.<br />
-    ///     Если <see langword="null" />, объект будет получать урон от всех <see cref="DamageType" />
-    /// </summary>
-    public virtual List<DamageType>? AllowedDamageTypes { get; set => field = value?.IsEmpty() is true ? null : value; }
-
-    public virtual Dictionary<DamageType, float> DamageMultipliers { get; set => field = value ?? []; } = [];
-
-    /// <summary>
-    ///     Получает или задаёт делегат, вызываемый после нанесения фатального урона объекту.<br />
-    /// </summary>
-    /// <remarks>
-    ///     <list type="number">
-    ///         <listheader>
-    ///             <term>Передаёт аргументы:</term>
-    ///         </listheader>
-    ///         <item>
-    ///             <term>
-    ///                 <see cref="GameObject" />
-    ///             </term>
-    ///             <description>- Экземпляр уничтоженного объекта.</description>
-    ///         </item>
-    ///         <item>
-    ///             <term>
-    ///                 <see cref="ReferenceHub" />
-    ///             </term>
-    ///             <description>- Принадлежит игроку, который нанёс финальный урон.</description>
-    ///         </item>
-    ///     </list>
-    /// </remarks>
-    public Action<GameObject, ReferenceHub?>? OnDestroyedByDamage { get; set; }
-
-    /// <summary>
-    ///     Получает или задаёт текущее значение здоровья объекта с этим компонентом.
-    /// </summary>
-    protected float Health { get; set; }
-
-    /// <summary>
-    ///     Дочерние объекты <see cref="Component.gameObject" />
-    /// </summary>
-    public IReadOnlyCollection<GameObject>? ChildrenObjects { get; set; }
 
     #endregion
 
