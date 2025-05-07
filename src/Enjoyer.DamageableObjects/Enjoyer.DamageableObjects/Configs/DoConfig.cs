@@ -12,7 +12,12 @@ public sealed class DoConfig : IConfig
     public Dictionary<string, DoProperties> DamageableSchematics { get; set; } = new()
     {
         {
-            "EXAMPLE", new DoProperties(0, 1000)
+            "EXAMPLE", new DoProperties(0, 1000, new Dictionary<DamageType, float>
+            {
+                {
+                    DamageType.Scp096, 3.5f
+                }
+            })
         }
     };
 
