@@ -31,4 +31,4 @@ It may not work properly, if you encounter any problems, please post it in Issue
   it can use for others plugins, for example in the plugin with shields.
 
 ## Dependencies
-- [MapEditorReborn](https://github.com/sylveon/MapEditorReborn) (optional)
+- [MapEditorReborn](https://github.com/Michal78900/MapEditorReborn) (optional)
