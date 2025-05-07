@@ -1,4 +1,5 @@
 ﻿using Enjoyer.DamageableObjects.API.Components;
+using Enjoyer.DamageableObjects.API.Extensions;
 using Enjoyer.DamageableObjects.Configs;
 using Enjoyer.DamageableObjects.Patches.Scp096;
 using Exiled.API.Enums;
@@ -16,13 +17,13 @@ internal class EventHandlers
     internal virtual void RegisterEvents()
     {
         MapEvents.Generated += OnGenerated;
-        Scp096Events.Enraging += OnEnraging;
+        Scp096Events.Charging += OnCharging;
     }
 
     internal virtual void UnregisterEvents()
     {
         MapEvents.Generated -= OnGenerated;
-        Scp096Events.Enraging -= OnEnraging;
+        Scp096Events.Charging -= OnCharging;
     }
 
     private static void OnGenerated()
@@ -42,5 +43,5 @@ internal class EventHandlers
         }
     }
 
-    private static void OnEnraging(EnragingEventArgs ev) => ChargingProcessHitsPatch._processedComponents.Remove(ev.Player);
+    private static void OnCharging(ChargingEventArgs ev) => ProcessHitsPatch._chargeAttackedComponents.Remove(ev.Scp096.Base);
 }

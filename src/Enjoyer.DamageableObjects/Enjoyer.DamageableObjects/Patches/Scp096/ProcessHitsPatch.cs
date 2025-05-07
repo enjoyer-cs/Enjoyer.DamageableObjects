@@ -1,8 +1,10 @@
 ﻿using Enjoyer.DamageableObjects.API.Components;
 using Exiled.API.Features;
 using Exiled.API.Features.Pools;
+using Footprinting;
 using HarmonyLib;
 using PlayerRoles.PlayableScps.Scp096;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -13,23 +15,48 @@ using static HarmonyLib.AccessTools;
 namespace Enjoyer.DamageableObjects.Patches.Scp096;
 
 [HarmonyPatch(typeof(Scp096HitHandler), nameof(Scp096HitHandler.ProcessHits))]
-public class ChargingProcessHitsPatch
+public class ProcessHitsPatch
 {
     /// <summary>
     ///     Компоненты, обработанные при последнем использовании <see cref="Scp096ChargeAbility" />.
     /// </summary>
-    internal static Dictionary<Player, List<DamageableComponent>> _processedComponents { get; } = [];
+    internal static Dictionary<Scp096Role, List<DamageableComponent>> _chargeAttackedComponents { get; } = [];
 
-    private static void HandleDetection(Collider detection, Player player)
+    /// <summary>
+    ///     Компоненты, обработанные при последнем использовании <see cref="Scp096AttackAbility" />.
+    /// </summary>
+    internal static Dictionary<Scp096Role, List<DamageableComponent>> _attackedComponents { get; } = [];
+
+    private static void HandleDetection(Collider detection, Player? player, Scp096Role role)
     {
-        List<DamageableComponent>? ignoreComponents = _processedComponents.GetOrAdd(player, () => []);
+        try
+        {
+            List<DamageableComponent>? ignoreComponents;
+            if (detection.GetComponentInParent<DamageableComponent>() is not { } damageable)
+                return;
 
-        if (detection.GetComponentInParent<DamageableComponent>() is not { } damageable ||
-            ignoreComponents.Contains(damageable) || !damageable.OnCharging(player))
-            return;
+            switch (role.StateController.AbilityState)
+            {
+                case Scp096AbilityState.Attacking:
+                    ignoreComponents = _attackedComponents.GetOrAdd(role, () => []);
 
-        damageable.OnCharging(player);
-        ignoreComponents.Add(damageable);
+                    if (!ignoreComponents.Contains(damageable) && damageable.OnScp096Attacking(player))
+                        ignoreComponents.Add(damageable);
+                    break;
+                case Scp096AbilityState.Charging:
+                    ignoreComponents = _chargeAttackedComponents.GetOrAdd(role, () => []);
+
+                    if (!ignoreComponents.Contains(damageable) && damageable.OnCharging(player, ignoreComponents.IsEmpty()))
+                        ignoreComponents.Add(damageable);
+                    break;
+                default:
+                    return;
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex);
+        }
     }
 
     private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
@@ -39,8 +66,9 @@ public class ChargingProcessHitsPatch
         LocalBuilder ownerLocal = generator.DeclareLocal(typeof(Player));
         Label handleDetectionLabel = generator.DefineLabel();
 
+        int targetIndex = newInstructions.FindIndex(i => i.Is(OpCodes.Call, Constructor(typeof(Footprint), [typeof(ReferenceHub)]))) + 1;
 
-        newInstructions.InsertRange(0, new List<CodeInstruction>
+        newInstructions.InsertRange(targetIndex, new List<CodeInstruction>
         {
             // Player owner = Player.Get(hub)
             new(OpCodes.Ldloc_2),
@@ -57,10 +85,8 @@ public class ChargingProcessHitsPatch
             method.GetParameters().Length == 1);
 
         // Index, after load current collider from Scp939Motor.Detections in for cycle
-        int targetIndex = newInstructions.FindIndex(i =>
+        targetIndex = newInstructions.FindIndex(i =>
             i.opcode == OpCodes.Callvirt && ReferenceEquals(i.operand, targetMethod.MakeGenericMethod(typeof(IDestructible)))) + 1;
-
-        Log.Warn(targetMethod);
 
         newInstructions[targetIndex].operand = handleDetectionLabel;
 
@@ -73,8 +99,11 @@ public class ChargingProcessHitsPatch
                 new CodeInstruction(OpCodes.Ldloc_S, 4).WithLabels(handleDetectionLabel),
                 // Load owner
                 new(OpCodes.Ldloc_S, ownerLocal.LocalIndex),
-                // invoke HandleDetection(hit, owner)
-                new(OpCodes.Call, Method(typeof(ChargingProcessHitsPatch), nameof(HandleDetection)))
+                // Load this._scpRole
+                new(OpCodes.Ldarg_0),
+                new(OpCodes.Ldfld, Field(typeof(Scp096HitHandler), nameof(Scp096HitHandler._scpRole))),
+                // invoke HandleDetection(hit, owner, this._scpRole)
+                new(OpCodes.Call, Method(typeof(ProcessHitsPatch), nameof(HandleDetection)))
             });
 
         foreach (CodeInstruction instruction in newInstructions)
