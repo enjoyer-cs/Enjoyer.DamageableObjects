@@ -205,6 +205,18 @@ public class DamageableComponent : MonoBehaviour
         ProcessDamage(ev.Player, CalculateDamage(ProtectionEfficacy, baseDamage, hitregModule.EffectivePenetration));
     }
 
+    protected internal virtual bool OnDisruptorSingleShot(Player? player, float damage)
+    {
+        Log.Debug(nameof(OnDisruptorSingleShot));
+
+        if (AllowedDamageTypes?.Any(type => type is DamageType.Firearm or DamageType.ParticleDisruptor) == false)
+            return false;
+
+        damage *= GetDamageMultiplier(DamageType.ParticleDisruptor);
+        ProcessDamage(player, damage);
+        return true;
+    }
+
     protected virtual void OnExploding(ExplodingGrenadeEventArgs ev)
     {
         if (!ev.IsAllowed || ev.Projectile.Base is not ExplosionGrenade grenade ||
