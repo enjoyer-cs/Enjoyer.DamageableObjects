@@ -4,6 +4,7 @@ using Exiled.API.Features.Pools;
 using HarmonyLib;
 using PlayerRoles.PlayableScps.Scp939;
 using PlayerRoles.Subroutines;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -26,13 +27,20 @@ internal static class MotorOverlapCapsulePatch
 
     private static void HandleDetection(Collider detection, Player player, Scp939LungeAbility lunge)
     {
-        List<DamageableComponent>? ignoreComponents = _processedComponents.GetOrAdd(player, () => []);
+        try
+        {
+            List<DamageableComponent>? ignoreComponents = _processedComponents.GetOrAdd(player, () => []);
 
-        if (detection.GetComponentInParent<DamageableComponent>() is not { } damageable ||
-            ignoreComponents.Contains(damageable) || !damageable.OnLunging(player, lunge, _processedComponents[player].IsEmpty()))
-            return;
+            if (detection.GetComponentInParent<DamageableComponent>() is not { } damageable ||
+                ignoreComponents.Contains(damageable) || !damageable.OnLunging(player, lunge, _processedComponents[player].IsEmpty()))
+                return;
 
-        ignoreComponents.Add(damageable);
+            ignoreComponents.Add(damageable);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex);
+        }
     }
 
     private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
