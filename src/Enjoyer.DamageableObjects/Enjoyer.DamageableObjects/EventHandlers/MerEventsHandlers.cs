@@ -1,5 +1,6 @@
 ﻿#if MER
 using Enjoyer.DamageableObjects.API.Components;
+using Enjoyer.DamageableObjects.API.Extensions;
 using Enjoyer.DamageableObjects.Configs;
 using Exiled.API.Features;
 using MapEditorReborn.Events.EventArgs;
@@ -36,11 +37,8 @@ internal class MerEventHandlers : EventHandlers
 
         DoProperties props = DoPlugin.PluginConfig.DamageableSchematics[key];
 
-        DamageableComponent? component = ev.Schematic.gameObject.AddComponent<DamageableComponent>();
+        DamageableComponent? component = ev.Schematic.gameObject.AddDamageableComponent<DamageableComponent>(props);
 
-        component.MaxHealth = props.MaxHealth;
-        component.ProtectionEfficacy = props.DamageResistance;
-        component.AllowedDamageTypes = props.AllowedDamageTypes;
         component.ChildrenObjects = ev.Schematic.AdminToyBases.Select(toy => toy.gameObject).ToList();
     }
 }

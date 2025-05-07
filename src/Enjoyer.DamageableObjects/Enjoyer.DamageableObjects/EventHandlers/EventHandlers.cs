@@ -32,11 +32,8 @@ internal class EventHandlers
         {
             foreach (BreakableDoor door in Door.List.Where(door => door.Type == pair.Key).Select(door => door.As<BreakableDoor>()))
             {
-                DamageableDoor component = door.GameObject.AddComponent<DamageableDoor>();
+                DamageableDoor component = door.GameObject.AddDamageableComponent<DamageableDoor>(pair.Value);
                 component.Door = door;
-                component.MaxHealth = pair.Value.MaxHealth;
-                component.ProtectionEfficacy = pair.Value.DamageResistance;
-                component.AllowedDamageTypes = pair.Value.AllowedDamageTypes;
                 component.NotAffectToDamage = pair.Value.NotAffectToDamage;
                 component.HitMarkerSize = DoPlugin.PluginConfig.DoorHitMarkerSize;
             }
