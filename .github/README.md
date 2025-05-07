@@ -6,16 +6,15 @@ This plugin for Exiled adds support for **damageable objects** in SCP: Secret La
 
 - **Availble DamageSources**
   - Shots from firearms
-  - Grenades
+  - Secondary shot of Particle Disruptor
+  - Explosions
   - SCP-939 Claw & Lunge abilities
+  - SCP-096 Attack & Charge ability
   - Inprogress:
-    - SCP-096 Attack & Charge ability
     - SCP-049-2 Attack ability
     - SCP-3114 Ability
     - Micro HID
-    - Secondary shot of Particle Disruptor
     - SCP-018 interaction
-    - Explosions
 
 - **Damageable MapEditorReborn Schematics**  
   Define custom schematics that can take damage and destroy after reaching 0 HP.
