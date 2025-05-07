@@ -87,7 +87,7 @@ public class DamageableComponent : MonoBehaviour
 
     #region General Methods
 
-    protected virtual void ProcessDamage(Player? player, float damage, float hitMarkerSize = 1f)
+    protected virtual void ProcessDamage(ReferenceHub? damageDealer, float damage, float hitMarkerSize = 1f)
     {
         if (damage <= 0) return;
 
@@ -95,20 +95,20 @@ public class DamageableComponent : MonoBehaviour
 
         Health -= damage;
 
-        if (hitMarkerSize > 0) player?.ShowHitMarker();
+        if (hitMarkerSize > 0) Hitmarker.SendHitmarkerDirectly(damageDealer, hitMarkerSize);
         if (Health > 0) return;
 
         Health = 0;
-        DestroyByDamage(player);
+        DestroyByDamage(damageDealer);
     }
 
-    protected virtual void DestroyByDamage(Player? player)
+    protected virtual void DestroyByDamage(ReferenceHub? destroyer)
     {
         Destroy(gameObject);
-        OnDestroyedByDamage?.Invoke(gameObject, player);
+        OnDestroyedByDamage?.Invoke(gameObject, destroyer);
     }
 
-    protected virtual bool CheckRaycastHit(Transform originTransform, float maxDistance = 2f, float maxDistanceY = 2f) =>
+    protected virtual bool CheckRaycastHit(Transform originTransform, float maxDistance = 2f) =>
         Physics.Raycast(originTransform.position, originTransform.forward, out RaycastHit hit) &&
         CheckRaycastHit(hit) &&
         hit.transform.GetComponentInParent<Collider>() is { } collider &&
@@ -173,13 +173,13 @@ public class DamageableComponent : MonoBehaviour
     ///         </item>
     ///         <item>
     ///             <term>
-    ///                 <see cref="Player" />
+    ///                 <see cref="ReferenceHub" />
     ///             </term>
-    ///             <description>- Игрок, который нанёс финальный урон.</description>
+    ///             <description>- Принадлежит игроку, который нанёс финальный урон.</description>
     ///         </item>
     ///     </list>
     /// </remarks>
-    public Action<GameObject, Player?>? OnDestroyedByDamage { get; set; }
+    public Action<GameObject, ReferenceHub?>? OnDestroyedByDamage { get; set; }
 
     /// <summary>
     ///     Получает или задаёт текущее значение здоровья объекта с этим компонентом.
@@ -207,14 +207,14 @@ public class DamageableComponent : MonoBehaviour
         HitscanHitregModuleBase hitregModule = ev.Firearm.HitscanHitregModule;
         float baseDamage = hitregModule.DamageAtDistance(ev.Distance) * GetDamageMultiplier(firearmDamageType);
 
-        Log.Debug($"[OnShot] firearm: {ev.Firearm.FirearmType}, damage: {baseDamage}");
+        Log.Debug($"[{nameof(OnShot)}] Firearm: {ev.Firearm.FirearmType}, Damage: {baseDamage}");
 
-        ProcessDamage(ev.Player, CalculateDamage(ProtectionEfficacy, baseDamage, hitregModule.EffectivePenetration));
+        ProcessDamage(ev.Player.ReferenceHub, CalculateDamage(ProtectionEfficacy, baseDamage, hitregModule.EffectivePenetration));
     }
 
-    protected internal virtual bool OnDisruptorSingleShot(Player? player, float damage)
+    protected internal virtual bool OnDisruptorSingleShot(ReferenceHub? player, float damage)
     {
-        Log.Debug(nameof(OnDisruptorSingleShot));
+        Log.Debug($"[{nameof(OnDisruptorSingleShot)}] Trying to handle shot");
 
         if (!IsDamageTypeAllow(DamageType.ParticleDisruptor, DamageType.Firearm))
             return false;
@@ -226,6 +226,8 @@ public class DamageableComponent : MonoBehaviour
 
     protected virtual void OnExploding(ExplodingGrenadeEventArgs ev)
     {
+        Log.Debug($"[{nameof(OnExploding)}] Trying to handle Explosion");
+
         if (!ev.IsAllowed || ev.Projectile.Base is not ExplosionGrenade grenade ||
             Physics.Linecast(transform.position, ev.Position, ExplosionBlockerMask))
             return;
@@ -233,23 +235,29 @@ public class DamageableComponent : MonoBehaviour
         float baseDamage = grenade._playerDamageOverDistance.Evaluate(Vector3.Distance(ev.Position, transform.position)) *
                            GetDamageMultiplier(DamageType.Explosion);
 
-        Log.Debug($"[{nameof(OnExploding)}] Base damage: {baseDamage}]");
+        if (baseDamage <= 0)
+        {
+            Log.Debug($"[{nameof(OnExploding)}] Base damage equals 0");
+            return;
+        }
 
-        if (baseDamage <= 0) return;
-
-        ProcessDamage(ev.Player, CalculateDamage(ProtectionEfficacy, baseDamage, 50));
+        ProcessDamage(ev.Player.ReferenceHub, CalculateDamage(ProtectionEfficacy, baseDamage, 50));
     }
 
     protected virtual void OnClawed(ClawedEventArgs ev)
     {
         if (ev.Scp939.ClawAbility.AttackTriggered || !CheckRaycastHit(ev.Player.CameraTransform)) return;
 
-        ProcessDamage(ev.Player, CalculateDamage(ProtectionEfficacy,
+        Log.Debug($"[{nameof(OnClawed)}] Handle SCP 939 Claw");
+
+        ProcessDamage(ev.Player.ReferenceHub, CalculateDamage(ProtectionEfficacy,
             Scp939ClawAbility.BaseDamage * GetDamageMultiplier(DamageType.Scp939), Scp939ClawAbility.DamagePenetration));
     }
 
-    protected internal virtual bool OnLunging(Player player, Scp939LungeAbility lunge, bool isMainTarget)
+    protected internal virtual bool OnLunging(ReferenceHub player, Scp939LungeAbility lunge, bool isMainTarget)
     {
+        Log.Debug($"[{nameof(OnLunging)}] Trying to handle SCP 939 Lunge");
+
         if (!IsDamageTypeAllow(DamageType.Scp939))
             return false;
 
@@ -269,16 +277,20 @@ public class DamageableComponent : MonoBehaviour
         return true;
     }
 
-    protected internal virtual bool OnScp096Attacking(Player? player)
+    protected internal virtual bool OnScp096Attacking(ReferenceHub? player)
     {
+        Log.Debug($"[{nameof(OnScp096Attacking)}] Trying to handle SCP 096 Attack");
+
         if (!IsDamageTypeAllow(DamageType.Scp096)) return false;
 
         ProcessDamage(player, Scp096AttackAbility.HumanDamage * GetDamageMultiplier(DamageType.Scp096));
         return true;
     }
 
-    protected internal virtual bool OnCharging(Player? player, bool isMainTarget)
+    protected internal virtual bool OnCharging(ReferenceHub? player, bool isMainTarget)
     {
+        Log.Debug($"[{nameof(OnCharging)}] Trying to handle SCP 096 Charge");
+
         if (AllowedDamageTypes?.Contains(DamageType.Scp096) == false)
             return false;
 

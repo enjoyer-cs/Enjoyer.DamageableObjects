@@ -1,5 +1,4 @@
-﻿using Exiled.API.Features;
-using Exiled.API.Features.Doors;
+﻿using Exiled.API.Features.Doors;
 using Exiled.Events.EventArgs.Map;
 using Exiled.Events.EventArgs.Player;
 using Interactables.Interobjects.DoorUtils;
@@ -42,17 +41,17 @@ public sealed class DamageableDoor : DamageableComponent
     }
 
     /// <inheritdoc />
-    protected internal override bool OnLunging(Player player, Scp939LungeAbility lunge, bool isMainTarget) =>
+    protected internal override bool OnLunging(ReferenceHub player, Scp939LungeAbility lunge, bool isMainTarget) =>
         !Door.IsFullyOpen && base.OnLunging(player, lunge, isMainTarget);
 
     /// <inheritdoc />
-    protected internal override bool OnScp096Attacking(Player? player) => true;
+    protected internal override bool OnScp096Attacking(ReferenceHub? player) => true;
 
     /// <inheritdoc />
-    protected internal override bool OnCharging(Player? player, bool isMainTarget) => true;
+    protected internal override bool OnCharging(ReferenceHub? player, bool isMainTarget) => true;
 
     /// <inheritdoc />
-    protected override void ProcessDamage(Player? player, float damage, float hitMarkerSize = 1f)
+    protected override void ProcessDamage(ReferenceHub? damageDealer, float damage, float hitMarkerSize = 1f)
     {
         hitMarkerSize = HitMarkerSize;
 
@@ -62,14 +61,14 @@ public sealed class DamageableDoor : DamageableComponent
             return;
         }
 
-        base.ProcessDamage(player, damage, hitMarkerSize);
+        base.ProcessDamage(damageDealer, damage, hitMarkerSize);
     }
 
     /// <inheritdoc />
-    protected override void DestroyByDamage(Player? player)
+    protected override void DestroyByDamage(ReferenceHub? destroyer)
     {
         Door.Break();
         Destroy(this);
-        OnDestroyedByDamage?.Invoke(gameObject, player);
+        OnDestroyedByDamage?.Invoke(gameObject, destroyer);
     }
 }

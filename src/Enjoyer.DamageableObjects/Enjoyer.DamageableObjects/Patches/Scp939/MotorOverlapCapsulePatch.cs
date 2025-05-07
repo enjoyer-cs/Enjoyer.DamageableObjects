@@ -23,16 +23,16 @@ internal static class MotorOverlapCapsulePatch
     /// <summary>
     ///     Компоненты, обработанные при последнем использовании <see cref="Scp939LungeAbility" />.
     /// </summary>
-    internal static Dictionary<Player, List<DamageableComponent>> _processedComponents { get; } = [];
+    internal static Dictionary<Scp939LungeAbility, List<DamageableComponent>> _processedComponents { get; } = [];
 
-    private static void HandleDetection(Collider detection, Player player, Scp939LungeAbility lunge)
+    private static void HandleDetection(Collider detection, ReferenceHub player, Scp939LungeAbility lunge)
     {
         try
         {
-            List<DamageableComponent>? ignoreComponents = _processedComponents.GetOrAdd(player, () => []);
+            List<DamageableComponent>? ignoreComponents = _processedComponents.GetOrAdd(lunge, () => []);
 
             if (detection.GetComponentInParent<DamageableComponent>() is not { } damageable ||
-                ignoreComponents.Contains(damageable) || !damageable.OnLunging(player, lunge, _processedComponents[player].IsEmpty()))
+                ignoreComponents.Contains(damageable) || !damageable.OnLunging(player, lunge, _processedComponents[lunge].IsEmpty()))
                 return;
 
             ignoreComponents.Add(damageable);
@@ -47,19 +47,15 @@ internal static class MotorOverlapCapsulePatch
     {
         List<CodeInstruction> newInstructions = ListPool<CodeInstruction>.Pool.Get(instructions);
 
-        LocalBuilder ownerLocal = generator.DeclareLocal(typeof(Player));
+        LocalBuilder ownerLocal = generator.DeclareLocal(typeof(ReferenceHub));
         FieldInfo lungeField = Field(typeof(Scp939Motor), nameof(Scp939Motor._lunge));
 
-        // Player owner = Player.Get(this._lunge.Owner)
+        // ReferenceHub owner = this._lunge.Owner
         newInstructions.InsertRange(0, new List<CodeInstruction>
         {
             new(OpCodes.Ldarg_0),
             new(OpCodes.Ldfld, lungeField),
             new(OpCodes.Callvirt, PropertyGetter(typeof(KeySubroutine<Scp939Role>), nameof(KeySubroutine<Scp939Role>.Owner))),
-            new(OpCodes.Call, Method(typeof(Player), nameof(Player.Get),
-            [
-                typeof(ReferenceHub)
-            ])),
             new(OpCodes.Stloc_S, ownerLocal.LocalIndex)
         });
 

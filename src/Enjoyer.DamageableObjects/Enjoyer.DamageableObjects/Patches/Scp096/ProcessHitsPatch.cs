@@ -1,7 +1,6 @@
 ﻿using Enjoyer.DamageableObjects.API.Components;
 using Exiled.API.Features;
 using Exiled.API.Features.Pools;
-using Footprinting;
 using HarmonyLib;
 using PlayerRoles.PlayableScps.Scp096;
 using System;
@@ -27,7 +26,7 @@ public class ProcessHitsPatch
     /// </summary>
     internal static Dictionary<Scp096Role, List<DamageableComponent>> _attackedComponents { get; } = [];
 
-    private static void HandleDetection(Collider detection, Player? player, Scp096Role role)
+    private static void HandleDetection(Collider detection, ReferenceHub? player, Scp096Role role)
     {
         try
         {
@@ -61,21 +60,7 @@ public class ProcessHitsPatch
     {
         List<CodeInstruction> newInstructions = ListPool<CodeInstruction>.Pool.Get(instructions);
 
-        LocalBuilder ownerLocal = generator.DeclareLocal(typeof(Player));
         Label handleDetectionLabel = generator.DefineLabel();
-
-        int targetIndex = newInstructions.FindIndex(i => i.Is(OpCodes.Call, Constructor(typeof(Footprint), [typeof(ReferenceHub)]))) + 1;
-
-        newInstructions.InsertRange(targetIndex, new List<CodeInstruction>
-        {
-            // Player owner = Player.Get(hub)
-            new(OpCodes.Ldloc_2),
-            new(OpCodes.Call, Method(typeof(Player), nameof(Player.Get),
-            [
-                typeof(ReferenceHub)
-            ])),
-            new(OpCodes.Stloc_S, ownerLocal.LocalIndex)
-        });
 
         MethodInfo[] methods = typeof(Collider).GetMethods(BindingFlags.Instance | BindingFlags.Public);
         MethodInfo targetMethod = methods.First(method =>
@@ -83,7 +68,7 @@ public class ProcessHitsPatch
             method.GetParameters().Length == 1);
 
         // Index, after load current collider from Scp939Motor.Detections in for cycle
-        targetIndex = newInstructions.FindIndex(i =>
+        int targetIndex = newInstructions.FindIndex(i =>
             i.opcode == OpCodes.Callvirt && ReferenceEquals(i.operand, targetMethod.MakeGenericMethod(typeof(IDestructible)))) + 1;
 
         newInstructions[targetIndex].operand = handleDetectionLabel;
@@ -95,8 +80,8 @@ public class ProcessHitsPatch
             {
                 // Load current collider
                 new CodeInstruction(OpCodes.Ldloc_S, 4).WithLabels(handleDetectionLabel),
-                // Load owner
-                new(OpCodes.Ldloc_S, ownerLocal.LocalIndex),
+                // Load hub of owner
+                new(OpCodes.Ldloc_2),
                 // Load this._scpRole
                 new(OpCodes.Ldarg_0),
                 new(OpCodes.Ldfld, Field(typeof(Scp096HitHandler), nameof(Scp096HitHandler._scpRole))),

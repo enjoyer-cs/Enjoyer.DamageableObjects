@@ -14,7 +14,7 @@ namespace Enjoyer.DamageableObjects.Patches;
 [HarmonyPatch(typeof(DisruptorHitregModule), nameof(DisruptorHitregModule.ServerPerformSingle))]
 public static class DisruptorHitregPatch
 {
-    private static void HandleHit(DisruptorHitregModule module, RaycastHit? hit, Player? player)
+    private static void HandleHit(DisruptorHitregModule module, RaycastHit? hit, ReferenceHub? player)
     {
         try
         {
@@ -40,17 +40,13 @@ public static class DisruptorHitregPatch
     {
         List<CodeInstruction> newInstructions = ListPool<CodeInstruction>.Pool.Get(instructions);
 
-        LocalBuilder ownerLocal = generator.DeclareLocal(typeof(Player));
+        LocalBuilder ownerLocal = generator.DeclareLocal(typeof(ReferenceHub));
 
         newInstructions.InsertRange(0, new List<CodeInstruction>
         {
-            // Player owner = Player.Get(this.Owner)
+            // ReferenceHub owner = this.Owner
             new(OpCodes.Ldarg_0),
             new(OpCodes.Callvirt, PropertyGetter(typeof(DisruptorHitregModule), nameof(DisruptorHitregModule.Owner))),
-            new(OpCodes.Call, Method(typeof(Player), nameof(Player.Get),
-            [
-                typeof(ReferenceHub)
-            ])),
             new(OpCodes.Stloc_S, ownerLocal.LocalIndex)
         });
 
