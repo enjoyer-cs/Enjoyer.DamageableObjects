@@ -56,6 +56,12 @@ public sealed class DamageableDoor : DamageableComponent
     {
         hitMarkerSize = HitMarkerSize;
 
+        if (Door.IsDestroyed)
+        {
+            Destroy(this);
+            return;
+        }
+
         base.ProcessDamage(player, damage, hitMarkerSize);
     }
 
