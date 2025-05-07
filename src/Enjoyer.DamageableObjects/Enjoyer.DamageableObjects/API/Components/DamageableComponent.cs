@@ -192,14 +192,13 @@ public class DamageableComponent : MonoBehaviour
     {
         if (!CheckRaycastHit(ev.RaycastHit)) return;
 
-        DamageType? damageType = AllowedDamageTypes?.FirstOrDefault(type =>
-            type == (DamageType)Enum.Parse(typeof(DamageType), ev.Firearm.FirearmType.ToString(), true) ||
-            type is not DamageType.Firearm);
+        DamageType firearmDamageType = (DamageType)Enum.Parse(typeof(DamageType), ev.Firearm.FirearmType.ToString(), true);
+        DamageType? damageType = AllowedDamageTypes?.FirstOrDefault(type => type == firearmDamageType || type is not DamageType.Firearm);
 
         if (AllowedDamageTypes is not null && damageType is null) return;
 
         HitscanHitregModuleBase hitregModule = ev.Firearm.HitscanHitregModule;
-        float baseDamage = hitregModule.DamageAtDistance(ev.Distance) * GetDamageMultiplier(damageType ?? DamageType.Firearm);
+        float baseDamage = hitregModule.DamageAtDistance(ev.Distance) * GetDamageMultiplier(firearmDamageType);
 
         Log.Debug($"[OnShot] firearm: {ev.Firearm.FirearmType}, damage: {baseDamage}");
 
