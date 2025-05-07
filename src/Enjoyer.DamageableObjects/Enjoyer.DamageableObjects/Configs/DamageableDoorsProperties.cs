@@ -8,12 +8,13 @@ namespace Enjoyer.DamageableObjects.Configs;
 
 public struct DamageableDoorsProperties : IDoProperties
 {
-    public DamageableDoorsProperties(int damageResistance, uint maxHealth, DoorDamageType notAffectToDamage,
-        params List<DamageType>? allowedDamageSources) : this()
+    public DamageableDoorsProperties(int damageResistance, uint maxHealth, DoorDamageType notAffectToDamage = DoorDamageType.None,
+        Dictionary<DamageType, float>? damageMultipliers = null, params List<DamageType>? allowedDamageSources) : this()
     {
         DamageResistance = damageResistance;
         MaxHealth = maxHealth;
         NotAffectToDamage = notAffectToDamage;
+        DamageMultipliers = damageMultipliers ?? [];
         AllowedDamageTypes = allowedDamageSources;
     }
 
@@ -28,4 +29,7 @@ public struct DamageableDoorsProperties : IDoProperties
 
     /// <inheritdoc />
     public List<DamageType>? AllowedDamageTypes { get; set; }
+
+    /// <inheritdoc />
+    public Dictionary<DamageType, float> DamageMultipliers { get; set; }
 }

@@ -15,4 +15,6 @@ public interface IDoProperties
                  Can be: any firearm DamageType, Firearm, MicroHid, Explosion, Scp018, Scp0492, Scp096, Scp3114, Scp939.
                  """)]
     public List<DamageType>? AllowedDamageTypes { get; set; }
+
+    public Dictionary<DamageType, float> DamageMultipliers { get; set; }
 }
