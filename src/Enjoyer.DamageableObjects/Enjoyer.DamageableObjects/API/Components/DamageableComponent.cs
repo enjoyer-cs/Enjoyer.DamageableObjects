@@ -43,6 +43,8 @@ public class DamageableComponent : MonoBehaviour
         DamageType.A7
     ];
 
+    public static CachedLayerMask ExplosionBlockerMask { get; } = new("Default", "CCTV", "Door");
+
     #region Init
 
     protected virtual void Start()
@@ -225,7 +227,7 @@ public class DamageableComponent : MonoBehaviour
     protected virtual void OnExploding(ExplodingGrenadeEventArgs ev)
     {
         if (!ev.IsAllowed || ev.Projectile.Base is not ExplosionGrenade grenade ||
-            Physics.Linecast(transform.position, ev.Position, ThrownProjectile.HitBlockerMask))
+            Physics.Linecast(transform.position, ev.Position, ExplosionBlockerMask))
             return;
 
         float baseDamage = grenade._playerDamageOverDistance.Evaluate(Vector3.Distance(ev.Position, transform.position)) *
