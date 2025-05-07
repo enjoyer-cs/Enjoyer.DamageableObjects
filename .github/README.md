@@ -28,7 +28,7 @@ It may not work properly, if you encounter any problems, please post it in Issue
   Configure health, damage types & Protection.
   
 - **Moding**  
-  it can use for others plugins, for example in the plugin with shields.
+  It can be used in other plugins as well, such as the shield plugin. But soon I plan to rework the code for better adaptability and versatility
 
 ## Dependencies
 - [MapEditorReborn](https://github.com/Michal78900/MapEditorReborn) (optional)
