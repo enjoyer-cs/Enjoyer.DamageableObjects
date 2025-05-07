@@ -151,7 +151,7 @@ public class DamageableComponent : MonoBehaviour
 
         Health -= damage;
 
-        if (hitMarkerSize > 0) Hitmarker.SendHitmarkerDirectly(damageDealer, hitMarkerSize);
+        if (hitMarkerSize > 0 && damageDealer is not null) Hitmarker.SendHitmarkerDirectly(damageDealer, hitMarkerSize);
         if (Health > 0) return;
 
         Health = 0;
@@ -243,6 +243,9 @@ public class DamageableComponent : MonoBehaviour
 
         ProcessDamage(ev.Player.ReferenceHub, CalculateDamage(ProtectionEfficacy, baseDamage, 50));
     }
+
+    protected internal void OnScp018Bounce(Scp018Projectile scp018, ReferenceHub? previousOwner) =>
+        ProcessDamage(previousOwner, scp018.CurrentDamage, 0f);
 
     protected virtual void OnClawed(ClawedEventArgs ev)
     {
