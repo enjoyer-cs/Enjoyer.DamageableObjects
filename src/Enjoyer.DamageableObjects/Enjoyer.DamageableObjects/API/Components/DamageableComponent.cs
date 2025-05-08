@@ -244,8 +244,11 @@ public class DamageableComponent : MonoBehaviour
         ProcessDamage(ev.Player.ReferenceHub, CalculateDamage(ProtectionEfficacy, baseDamage, 50));
     }
 
-    protected internal void OnScp018Bounce(Scp018Projectile scp018, ReferenceHub? previousOwner) =>
-        ProcessDamage(previousOwner, scp018.CurrentDamage, 0f);
+    protected internal void OnScp018Bounce(Scp018Projectile scp018, ReferenceHub? previousOwner)
+    {
+        if (IsDamageTypeAllow(DamageType.Scp018))
+            ProcessDamage(previousOwner, scp018.CurrentDamage, 0f);
+    }
 
     protected virtual void OnClawed(ClawedEventArgs ev)
     {
