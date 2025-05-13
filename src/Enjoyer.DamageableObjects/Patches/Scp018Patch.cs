@@ -41,8 +41,6 @@ internal static class Scp018Patch
     {
         List<CodeInstruction> newInstructions = ListPool<CodeInstruction>.Pool.Get(instructions);
 
-        LocalBuilder ownerLocal = generator.DeclareLocal(typeof(Player));
-
         // Index, after save raycastHit to local with index 1 in foreach
         int targetIndex = newInstructions.FindIndex(i => i.opcode == OpCodes.Stloc_2) + 1;
 

@@ -197,6 +197,8 @@ public class DamageableComponent : MonoBehaviour
 
     protected virtual void OnShot(ShotEventArgs ev)
     {
+        if (ev.Damage > 0)
+            ev.Player.ShowHint(ev.Damage.ToString());
         if (!CheckRaycastHit(ev.RaycastHit)) return;
 
         DamageType firearmDamageType = (DamageType)Enum.Parse(typeof(DamageType), ev.Firearm.FirearmType.ToString(), true);
