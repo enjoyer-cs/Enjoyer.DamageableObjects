@@ -1,4 +1,4 @@
-# DamageableObjects - `version-1.0.0` `beta`
+# DamageableObjects - `v0.1.0`
 
 This plugin for Exiled adds support for **damageable objects** in SCP: Secret Laboratory. These objects can be either **MapEditorReborn schematics** or standard **doors** and other GameObjects via modding, players can damage and destroy this objects during gameplay.
 
