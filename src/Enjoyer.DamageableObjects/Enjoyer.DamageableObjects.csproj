@@ -63,7 +63,6 @@
         <Reference Include="UnityEngine.CoreModule" HintPath="$(References)/UnityEngine.CoreModule.dll"/>
         <Reference Include="UnityEngine.PhysicsModule" HintPath="$(References)/UnityEngine.PhysicsModule.dll"/>
 
-        <Reference Include="MapEditorReborn" HintPath="$(References)/MapEditorReborn.dll"/>
         <Reference Include="ProjectMER" HintPath="$(References)/ProjectMER.dll"/>
     </ItemGroup>
 
