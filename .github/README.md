@@ -16,7 +16,7 @@ This plugin for Exiled adds support for **damageable objects** in SCP: Secret La
   - SCP-096 Attack & Charge ability
   - Inprogress:
     - SCP-049-2 Attack ability
-    - SCP-3114 Ability
+    - SCP-3114 Slap Ability
     - Micro HID
 
 - **Damageable MapEditorReborn Schematics**  
