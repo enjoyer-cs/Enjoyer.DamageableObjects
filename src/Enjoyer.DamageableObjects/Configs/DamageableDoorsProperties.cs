@@ -19,6 +19,7 @@ public struct DamageableDoorsProperties : IDoProperties
     }
 
     /// <inheritdoc />
+    [Description("Damage Resistance in percent for damage, that has penetration")]
     public int DamageResistance { get; set; }
 
     /// <inheritdoc />
@@ -28,6 +29,8 @@ public struct DamageableDoorsProperties : IDoProperties
     public DoorDamageType NotAffectToDamage { get; set; }
 
     /// <inheritdoc />
+    [Description(
+        "DamageTypes that can be used to deal damage to an object, if empty, the object will be able to take damage from any damage sources.")]
     public List<DamageType>? AllowedDamageTypes { get; set; }
 
     /// <inheritdoc />

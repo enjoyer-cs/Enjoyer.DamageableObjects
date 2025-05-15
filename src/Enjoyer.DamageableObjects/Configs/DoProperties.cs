@@ -17,6 +17,7 @@ public struct DoProperties : IDoProperties
     }
 
     /// <inheritdoc />
+    [Description("Damage Resistance in percent for damage, that has penetration")]
     public int DamageResistance { get; set; }
 
     /// <inheritdoc />

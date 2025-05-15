@@ -8,7 +8,7 @@ namespace Enjoyer.DamageableObjects.Configs;
 
 public sealed class DoConfig : IConfig
 {
-    [Description("Schematics that will be Damageable. If ")]
+    [Description("Schematics that will be Damageable. Works only with MER.")]
     public Dictionary<string, DoProperties> DamageableSchematics { get; set; } = new()
     {
         {
