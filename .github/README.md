@@ -3,6 +3,7 @@
 This plugin for Exiled adds support for **damageable objects** in SCP: Secret Laboratory. These objects can be either **MapEditorReborn schematics** or standard **doors** and other GameObjects via modding, players can damage and destroy this objects during gameplay.
 
 > [!WARNING]
+> **Plugin in beta**<br />
 > It may not work properly, if you encounter any problems, please post it in Issues
 
 ## Features
@@ -14,7 +15,7 @@ This plugin for Exiled adds support for **damageable objects** in SCP: Secret La
   - SCP-018 interactions
   - SCP-939 Claw & Lunge abilities
   - SCP-096 Attack & Charge ability
-  - Inprogress:
+  - Inprogress _`(Should be added in the update for version 14.1 of SCP: SL)`_:
     - SCP-049-2 Attack ability
     - SCP-3114 Slap Ability
     - Micro HID
