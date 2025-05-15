@@ -11,6 +11,10 @@ using static HarmonyLib.AccessTools;
 
 namespace Enjoyer.DamageableObjects.Patches;
 
+/// <summary>
+///     Патч метода <see cref="DisruptorHitregModule.ServerPerformSingle" />,
+///     Нужен для обработки урона одиночного выстрела Particle Disruptor
+/// </summary>
 [HarmonyPatch(typeof(DisruptorHitregModule), nameof(DisruptorHitregModule.ServerPerformSingle))]
 public static class DisruptorHitregPatch
 {
