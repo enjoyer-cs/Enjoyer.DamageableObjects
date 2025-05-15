@@ -3,9 +3,9 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("Enjoyer.DamageableObjects")]
-[assembly: AssemblyDescription("An Exiled plugin that allows to use damageable gameobjects in SCP: Secret Laboratory")]
 [assembly: AssemblyProduct("DamageableObjects")]
-[assembly: AssemblyCopyright("Copyright © enjoyer-cs 2025")]
+[assembly: AssemblyDescription("An Exiled plugin that allows to use damageable gameobjects in SCP: Secret Laboratory")]
+[assembly: AssemblyCopyright("Copyright © 2025 enjoyer-cs")]
 [assembly: AssemblyCulture("ru-RU")]
 
 [assembly: ComVisible(false)]
