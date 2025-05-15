@@ -11,19 +11,19 @@ public struct DamageableDoorsProperties : IDoProperties
     public DamageableDoorsProperties(int damageResistance, uint maxHealth, DoorDamageType notAffectToDamage = DoorDamageType.None,
         Dictionary<DamageType, float>? damageMultipliers = null, params List<DamageType>? allowedDamageSources) : this()
     {
-        DamageResistance = damageResistance;
         MaxHealth = maxHealth;
+        DamageResistance = damageResistance;
         NotAffectToDamage = notAffectToDamage;
         DamageMultipliers = damageMultipliers ?? [];
         AllowedDamageTypes = allowedDamageSources;
     }
 
     /// <inheritdoc />
-    [Description("Damage Resistance in percent for damage, that has penetration")]
-    public int DamageResistance { get; set; }
+    public uint MaxHealth { get; set; }
 
     /// <inheritdoc />
-    public uint MaxHealth { get; set; }
+    [Description("Damage Resistance in percent for damage, that has penetration")]
+    public int DamageResistance { get; set; }
 
     [Description("DoorDamageType that not could be modified")]
     public DoorDamageType NotAffectToDamage { get; set; }

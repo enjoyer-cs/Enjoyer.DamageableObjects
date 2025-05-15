@@ -5,9 +5,9 @@ namespace Enjoyer.DamageableObjects.Configs.Interfaces;
 
 public interface IDoProperties
 {
-    public int DamageResistance { get; set; }
-
     public uint MaxHealth { get; set; }
+
+    public int DamageResistance { get; set; }
 
     public List<DamageType>? AllowedDamageTypes { get; set; }
 
