@@ -3,6 +3,7 @@ using Exiled.API.Features;
 using Exiled.API.Features.Pools;
 using HarmonyLib;
 using InventorySystem.Items.Firearms.Modules;
+using InventorySystem.Items.Firearms.Modules.Misc;
 using System;
 using System.Collections.Generic;
 using System.Reflection.Emit;
@@ -11,7 +12,7 @@ using static HarmonyLib.AccessTools;
 
 namespace Enjoyer.DamageableObjects.Patches;
 
-[HarmonyPatch(typeof(DisruptorHitregModule), nameof(DisruptorHitregModule.ServerPerformSingle))]
+[HarmonyPatch(typeof(DisruptorHitregModule), nameof(DisruptorHitregModule.PrescanSingle))]
 public static class DisruptorHitregPatch
 {
     private static void HandleHit(DisruptorHitregModule module, RaycastHit? hit, ReferenceHub? player)
@@ -40,25 +41,16 @@ public static class DisruptorHitregPatch
     {
         List<CodeInstruction> newInstructions = ListPool<CodeInstruction>.Pool.Get(instructions);
 
-        LocalBuilder ownerLocal = generator.DeclareLocal(typeof(ReferenceHub));
-
-        newInstructions.InsertRange(0, new List<CodeInstruction>
-        {
-            // ReferenceHub owner = this.Owner
-            new(OpCodes.Ldarg_0),
-            new(OpCodes.Callvirt, PropertyGetter(typeof(DisruptorHitregModule), nameof(DisruptorHitregModule.Owner))),
-            new(OpCodes.Stloc_S, ownerLocal.LocalIndex)
-        });
-
         // Index, after save raycastHit to local with index 1 in foreach
-        int targetIndex = newInstructions.FindIndex(i => i.opcode == OpCodes.Stloc_1) + 1;
+        int targetIndex = newInstructions.FindIndex(i => i.Is(OpCodes.Newobj, Constructor(typeof(HitRayPair)))) + 2;
 
         newInstructions.InsertRange(
             targetIndex, new List<CodeInstruction>
             {
                 new(OpCodes.Ldarg_0),
                 new(OpCodes.Ldloc_1),
-                new(OpCodes.Ldloc_S, ownerLocal.LocalIndex),
+                new(OpCodes.Ldarg_0),
+                new(OpCodes.Callvirt, PropertyGetter(typeof(HitscanHitregModuleBase), nameof(HitscanHitregModuleBase.Owner))),
                 new(OpCodes.Call, Method(typeof(DisruptorHitregPatch), nameof(HandleHit)))
             });
 
