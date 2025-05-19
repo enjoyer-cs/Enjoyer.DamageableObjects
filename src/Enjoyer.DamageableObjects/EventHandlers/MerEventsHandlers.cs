@@ -3,8 +3,8 @@ using Enjoyer.DamageableObjects.API.Components;
 using Enjoyer.DamageableObjects.API.Extensions;
 using Enjoyer.DamageableObjects.Configs;
 using Exiled.API.Features;
-using MapEditorReborn.Events.EventArgs;
-using MapEditorReborn.Events.Handlers;
+using ProjectMER.Events.Arguments;
+using ProjectMER.Events.Handlers;
 using System;
 using System.Linq;
 

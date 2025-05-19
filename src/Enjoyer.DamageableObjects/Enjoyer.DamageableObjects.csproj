@@ -52,7 +52,7 @@
 
         <Reference Include="CommandSystem.Core" HintPath="$(References)/CommandSystem.Core.dll"/>
         <Reference Include="Mirror" HintPath="$(References)/Mirror.dll"/>
-        <Reference Include="PluginAPI" HintPath="$(References)/PluginAPI.dll"/>
+        <Reference Include="LabApi" HintPath="$(References)/LabApi.dll"/>
         <Reference Include="Pooling" HintPath="$(References)/Pooling.dll"/>
 
         <Reference Include="Exiled.API" HintPath="$(References)/Exiled.API.dll"/>
@@ -63,7 +63,6 @@
         <Reference Include="UnityEngine.CoreModule" HintPath="$(References)/UnityEngine.CoreModule.dll"/>
         <Reference Include="UnityEngine.PhysicsModule" HintPath="$(References)/UnityEngine.PhysicsModule.dll"/>
 
-        <Reference Include="MapEditorReborn" HintPath="$(References)/MapEditorReborn.dll"/>
         <Reference Include="ProjectMER" HintPath="$(References)/ProjectMER.dll"/>
     </ItemGroup>
 

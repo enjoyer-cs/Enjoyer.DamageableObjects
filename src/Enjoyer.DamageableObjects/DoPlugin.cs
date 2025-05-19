@@ -29,7 +29,7 @@ public sealed class DoPlugin : Plugin<DoConfig>
     public override Version Version { get; } = new(ProjectInfo.Version);
 
     /// <inheritdoc />
-    public override Version RequiredExiledVersion { get; } = new("9.5.2");
+    public override Version RequiredExiledVersion { get; } = new("9.6.0");
 
     /// <inheritdoc />
     public override void OnEnabled()

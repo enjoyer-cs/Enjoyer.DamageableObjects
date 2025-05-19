@@ -12,11 +12,11 @@ using static HarmonyLib.AccessTools;
 namespace Enjoyer.DamageableObjects.Patches;
 
 /// <summary>
-///     Патч метода <see cref="DisruptorHitregModule.ServerPerformSingle" />,
+///     Патч метода <see cref="DisruptorHitregModule.PrescanSingle" />,
 ///     Нужен для обработки урона одиночного выстрела Particle Disruptor
 /// </summary>
-[HarmonyPatch(typeof(DisruptorHitregModule), nameof(DisruptorHitregModule.ServerPerformSingle))]
-public static class DisruptorHitregPatch
+[HarmonyPatch(typeof(DisruptorHitregModule), nameof(DisruptorHitregModule.PrescanSingle))]
+internal static class DisruptorHitregPatch
 {
     private static void HandleHit(DisruptorHitregModule module, RaycastHit? hit, ReferenceHub? player)
     {
