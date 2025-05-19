@@ -197,8 +197,6 @@ public class DamageableComponent : MonoBehaviour
 
     protected virtual void OnShot(ShotEventArgs ev)
     {
-        if (ev.Damage > 0)
-            ev.Player.ShowHint(ev.Damage.ToString());
         if (!CheckRaycastHit(ev.RaycastHit)) return;
 
         DamageType firearmDamageType = (DamageType)Enum.Parse(typeof(DamageType), ev.Firearm.FirearmType.ToString(), true);
@@ -248,6 +246,8 @@ public class DamageableComponent : MonoBehaviour
 
     protected internal void OnScp018Bounce(Scp018Projectile scp018, ReferenceHub? previousOwner)
     {
+        Log.Debug($"[{nameof(OnScp018Bounce)}] Trying to handle SCP 018 Bounce");
+
         if (IsDamageTypeAllow(DamageType.Scp018))
             ProcessDamage(previousOwner, scp018.CurrentDamage, 0f);
     }
