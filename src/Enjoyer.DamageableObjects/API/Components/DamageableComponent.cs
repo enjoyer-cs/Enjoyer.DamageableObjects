@@ -151,7 +151,7 @@ public class DamageableComponent : MonoBehaviour
 
         Health -= damage;
 
-        if (hitMarkerSize > 0 && damageDealer is not null) Hitmarker.SendHitmarkerDirectly(damageDealer, hitMarkerSize);
+        if (hitMarkerSize > 0 && damageDealer) Hitmarker.SendHitmarkerDirectly(damageDealer, hitMarkerSize);
         if (Health > 0) return;
 
         Health = 0;
