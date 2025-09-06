@@ -1,12 +1,10 @@
-﻿using Exiled.API.Enums;
-using Exiled.API.Interfaces;
-using Interactables.Interobjects.DoorUtils;
+﻿using Enjoyer.DamageableObjects.API.Enums;
 using System.Collections.Generic;
 using System.ComponentModel;
 
 namespace Enjoyer.DamageableObjects.Configs;
 
-public sealed class DoConfig : IConfig
+public sealed class DoConfig
 {
     [Description("Schematics that will be Damageable. Works only with MER.")]
     public Dictionary<string, DoProperties> DamageableSchematics { get; set; } = new()
@@ -20,16 +18,6 @@ public sealed class DoConfig : IConfig
             })
         }
     };
-
-    [Description("DoorTypes that will be Damageable.")]
-    public Dictionary<DoorType, DamageableDoorsProperties> DamageableDoorTypes { get; set; } = new()
-    {
-        {
-            DoorType.EntranceDoor, new DamageableDoorsProperties(40, 500, DoorDamageType.Grenade | DoorDamageType.ParticleDisruptor)
-        }
-    };
-
-    public float DoorHitMarkerSize { get; set; } = 0.5f;
 
     /// <inheritdoc />
     public bool IsEnabled { get; set; } = true;
