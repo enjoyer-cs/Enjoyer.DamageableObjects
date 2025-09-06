@@ -1,6 +1,6 @@
 ﻿using Enjoyer.DamageableObjects.Configs;
-using Exiled.API.Features;
 using HarmonyLib;
+using LabApi.Loader.Features.Plugins;
 using System;
 
 namespace Enjoyer.DamageableObjects;
@@ -25,18 +25,17 @@ public sealed class DoPlugin : Plugin<DoConfig>
     /// <inheritdoc />
     public override string Name => "DamageableObjects";
 
+    public override string Description =>
+        "Adds support for damageable objects. These objects can be either ProjectMER schematics or standard doors and other GameObjects via modding";
+
     /// <inheritdoc />
     public override Version Version { get; } = new(ProjectInfo.Version);
 
-    /// <inheritdoc />
-    public override Version RequiredExiledVersion { get; } = new("9.6.0");
+    public override Version RequiredApiVersion { get; } = new(1, 1, 1);
 
     /// <inheritdoc />
-    public override void OnEnabled()
+    public override void Enable()
     {
-        base.OnEnabled();
-        PluginConfig = Config;
-
 #if MER
         _handlers = new MerEventHandlers();
 #else
@@ -48,20 +47,17 @@ public sealed class DoPlugin : Plugin<DoConfig>
     }
 
     /// <inheritdoc />
-    public override void OnDisabled()
+    public override void Disable()
     {
-        base.OnDisabled();
-
         _handlers?.UnregisterEvents();
         _handlers = null;
 
         _harmony.UnpatchAll();
     }
 
-    /// <inheritdoc />
-    public override void OnReloaded()
+    public override void LoadConfigs()
     {
-        base.OnReloaded();
-        PluginConfig = Config;
+        base.LoadConfigs();
+        PluginConfig = Config ?? throw new NullReferenceException("Can't load config");
     }
 }
