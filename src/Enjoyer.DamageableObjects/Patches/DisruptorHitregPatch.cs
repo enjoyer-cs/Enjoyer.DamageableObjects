@@ -1,13 +1,13 @@
 ﻿using Enjoyer.DamageableObjects.API.Components;
-using Exiled.API.Features;
-using Exiled.API.Features.Pools;
 using HarmonyLib;
 using InventorySystem.Items.Firearms.Modules;
 using System;
 using System.Collections.Generic;
 using System.Reflection.Emit;
 using UnityEngine;
+using UnityEngine.Pool;
 using static HarmonyLib.AccessTools;
+using Logger = LabApi.Features.Console.Logger;
 
 namespace Enjoyer.DamageableObjects.Patches;
 
@@ -22,11 +22,11 @@ internal static class DisruptorHitregPatch
     {
         try
         {
-            Log.Debug(hit.HasValue);
+            Logger.Debug(hit.HasValue);
             if (!hit.HasValue || !hit.Value.transform.TryGetComponentInParent(out DamageableComponent damageable))
                 return;
 
-            Log.Debug(damageable);
+            Logger.Debug(damageable);
 
             float damage = module.DamageAtDistance(hit.Value.distance) *
                            Mathf.Pow(1f / module._singleShotDivisionPerTarget, module._serverPenetrations);
@@ -36,13 +36,14 @@ internal static class DisruptorHitregPatch
         }
         catch (Exception ex)
         {
-            Log.Error(ex);
+            Logger.Error(ex);
         }
     }
 
     private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
     {
-        List<CodeInstruction> newInstructions = ListPool<CodeInstruction>.Pool.Get(instructions);
+        ListPool<CodeInstruction>.Get(out List<CodeInstruction> newInstructions);
+        newInstructions.AddRange(instructions);
 
         LocalBuilder ownerLocal = generator.DeclareLocal(typeof(ReferenceHub));
 
@@ -60,15 +61,12 @@ internal static class DisruptorHitregPatch
         newInstructions.InsertRange(
             targetIndex, new List<CodeInstruction>
             {
-                new(OpCodes.Ldarg_0),
-                new(OpCodes.Ldloc_1),
-                new(OpCodes.Ldloc_S, ownerLocal.LocalIndex),
-                new(OpCodes.Call, Method(typeof(DisruptorHitregPatch), nameof(HandleHit)))
+                new(OpCodes.Ldarg_0), new(OpCodes.Ldloc_1), new(OpCodes.Ldloc_S, ownerLocal.LocalIndex), new(OpCodes.Call, Method(typeof(DisruptorHitregPatch), nameof(HandleHit)))
             });
 
         foreach (CodeInstruction instruction in newInstructions)
             yield return instruction;
 
-        ListPool<CodeInstruction>.Pool.Return(newInstructions);
+        ListPool<CodeInstruction>.Release(newInstructions);
     }
 }

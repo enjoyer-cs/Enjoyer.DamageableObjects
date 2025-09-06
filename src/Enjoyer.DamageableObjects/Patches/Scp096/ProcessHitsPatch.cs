@@ -1,6 +1,4 @@
 ﻿using Enjoyer.DamageableObjects.API.Components;
-using Exiled.API.Features;
-using Exiled.API.Features.Pools;
 using HarmonyLib;
 using PlayerRoles.PlayableScps.Scp096;
 using System;
@@ -9,7 +7,9 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using UnityEngine;
+using UnityEngine.Pool;
 using static HarmonyLib.AccessTools;
+using Logger = LabApi.Features.Console.Logger;
 
 namespace Enjoyer.DamageableObjects.Patches.Scp096;
 
@@ -52,13 +52,14 @@ public class ProcessHitsPatch
         }
         catch (Exception ex)
         {
-            Log.Error(ex);
+            Logger.Error(ex);
         }
     }
 
     private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
     {
-        List<CodeInstruction> newInstructions = ListPool<CodeInstruction>.Pool.Get(instructions);
+        ListPool<CodeInstruction>.Get(out List<CodeInstruction> newInstructions);
+        newInstructions.AddRange(instructions);
 
         Label handleDetectionLabel = generator.DefineLabel();
 
@@ -92,6 +93,6 @@ public class ProcessHitsPatch
         foreach (CodeInstruction instruction in newInstructions)
             yield return instruction;
 
-        ListPool<CodeInstruction>.Pool.Return(newInstructions);
+        ListPool<CodeInstruction>.Release(newInstructions);
     }
 }

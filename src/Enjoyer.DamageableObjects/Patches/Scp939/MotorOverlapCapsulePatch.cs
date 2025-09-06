@@ -1,6 +1,4 @@
 ﻿using Enjoyer.DamageableObjects.API.Components;
-using Exiled.API.Features;
-using Exiled.API.Features.Pools;
 using HarmonyLib;
 using PlayerRoles.PlayableScps.Scp939;
 using PlayerRoles.Subroutines;
@@ -9,7 +7,9 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using UnityEngine;
+using UnityEngine.Pool;
 using static HarmonyLib.AccessTools;
+using Logger = LabApi.Features.Console.Logger;
 
 namespace Enjoyer.DamageableObjects.Patches.Events.Scp939;
 
@@ -39,13 +39,14 @@ internal static class MotorOverlapCapsulePatch
         }
         catch (Exception ex)
         {
-            Log.Error(ex);
+            Logger.Error(ex);
         }
     }
 
     private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
     {
-        List<CodeInstruction> newInstructions = ListPool<CodeInstruction>.Pool.Get(instructions);
+        ListPool<CodeInstruction>.Get(out List<CodeInstruction> newInstructions);
+        newInstructions.AddRange(instructions);
 
         LocalBuilder ownerLocal = generator.DeclareLocal(typeof(ReferenceHub));
         FieldInfo lungeField = Field(typeof(Scp939Motor), nameof(Scp939Motor._lunge));
@@ -79,6 +80,6 @@ internal static class MotorOverlapCapsulePatch
         foreach (CodeInstruction instruction in newInstructions)
             yield return instruction;
 
-        ListPool<CodeInstruction>.Pool.Return(newInstructions);
+        ListPool<CodeInstruction>.Release(newInstructions);
     }
 }
