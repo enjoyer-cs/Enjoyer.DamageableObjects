@@ -46,6 +46,7 @@
 
     <ItemGroup>
         <Reference Include="0Harmony" HintPath="$(References)/0Harmony.dll"/>
+        <Reference Include="ProjectMER" HintPath="$(References)/ProjectMER.dll"/>
 
         <Reference Include="Assembly-CSharp-Publicized" HintPath="$(References)/Assembly-CSharp-Publicized.dll"/>
 
@@ -54,15 +55,13 @@
         <Reference Include="LabApi" HintPath="$(References)/LabApi.dll"/>
         <Reference Include="Pooling" HintPath="$(References)/Pooling.dll"/>
 
-        <Reference Include="Exiled.API" HintPath="$(References)/Exiled.API.dll"/>
-        <Reference Include="Exiled.Events" HintPath="$(References)/Exiled.Events.dll"/>
-        <Reference Include="Exiled.Loader" HintPath="$(References)/Exiled.Loader.dll"/>
-
         <Reference Include="UnityEngine.AudioModule" HintPath="$(References)/UnityEngine.AudioModule.dll"/>
         <Reference Include="UnityEngine.CoreModule" HintPath="$(References)/UnityEngine.CoreModule.dll"/>
         <Reference Include="UnityEngine.PhysicsModule" HintPath="$(References)/UnityEngine.PhysicsModule.dll"/>
+    </ItemGroup>
 
-        <Reference Include="ProjectMER" HintPath="$(References)/ProjectMER.dll"/>
+    <ItemGroup>
+        <PackageReference Include="Northwood.LabAPI" Version="1.1.1"/>
     </ItemGroup>
 
 </Project>
