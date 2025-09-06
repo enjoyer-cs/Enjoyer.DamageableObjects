@@ -1,7 +1,7 @@
 # DamageableObjects - 2.0.0
 
 This plugin for LabAPI adds support for **damageable objects** in SCP: Secret Laboratory.
-These objects can be either **MapEditorReborn schematics** or standard **doors** and other GameObjects via modding,
+These objects can be either **MapEditorReborn schematics** or other GameObjects via modding,
 players can damage and destroy this objects during gameplay.
 
 > [!WARNING]
@@ -19,14 +19,13 @@ players can damage and destroy this objects during gameplay.
   - Inprogress:
     - Secondary shot of Particle Disruptor
     - SCP-049-2 Attack ability
-    - SCP-3114 Slap Ability
     - Micro HID
 
 - **Damageable MapEditorReborn Schematics**
   Define custom schematics that can take damage and destroy after reaching 0 HP.
 
-- **Damageable Doors**
-  Adds new ways, to deal damage doors, and allows you to customize, what damage sources can affect to a door with choosen DoorType
+- **Damageable Doors** `(will be implemented in other plugin)`
+  ~~Adds new ways, to deal damage doors, and allows you to customize, what damage sources can affect to a door with choosen DoorType~~
 
 - **Customizable Settings**
   Configure health, damage types & Protection.
