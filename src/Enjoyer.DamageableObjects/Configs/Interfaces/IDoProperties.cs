@@ -1,4 +1,4 @@
-﻿using Exiled.API.Enums;
+﻿using Enjoyer.DamageableObjects.API.Enums;
 using System.Collections.Generic;
 
 namespace Enjoyer.DamageableObjects.Configs.Interfaces;

@@ -2,13 +2,13 @@
 using Enjoyer.DamageableObjects.API.Components;
 using Enjoyer.DamageableObjects.API.Extensions;
 using Enjoyer.DamageableObjects.Configs;
-using Exiled.API.Features;
+using LabApi.Features.Console;
 using ProjectMER.Events.Arguments;
 using ProjectMER.Events.Handlers;
 using System;
 using System.Linq;
 
-namespace Enjoyer.DamageableObjects;
+namespace Enjoyer.DamageableObjects.EventHandlers;
 
 internal class MerEventHandlers : EventHandlers
 {
@@ -28,7 +28,7 @@ internal class MerEventHandlers : EventHandlers
 
     private void OnSchematicSpawned(SchematicSpawnedEventArgs ev)
     {
-        Log.Debug($"Invoked OnSchematicSpawned for schematic with name: {ev.Name}");
+        Logger.Debug($"Invoked OnSchematicSpawned for schematic with name: {ev.Name}");
 
         if (DoPlugin.PluginConfig.DamageableSchematics.Keys.FirstOrDefault(ds =>
                 string.Equals(ds, ev.Name, StringComparison.CurrentCultureIgnoreCase)) is not { } key ||

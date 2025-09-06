@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using PlayerRoles.PlayableScps.Scp939;
 
-namespace Enjoyer.DamageableObjects.Patches.Events.Scp939;
+namespace Enjoyer.DamageableObjects.Patches.Scp939;
 
 /// <summary>
 ///     Патч метода <see cref="Scp939LungeAbility.TriggerLunge" />, нужен для очистки

@@ -1,20 +1,17 @@
-﻿using Exiled.API.Enums;
-using Exiled.API.Features;
-using Exiled.Events.EventArgs.Map;
-using Exiled.Events.EventArgs.Player;
-using Exiled.Events.EventArgs.Scp939;
+﻿using Enjoyer.DamageableObjects.API.Enums;
 using InventorySystem.Items.Armor;
-using InventorySystem.Items.Firearms.Modules;
-using InventorySystem.Items.ThrowableProjectiles;
+using LabApi.Events.Arguments.Scp939Events;
+using LabApi.Events.Arguments.ServerEvents;
+using LabApi.Events.Handlers;
+using LabApi.Features.Wrappers;
 using PlayerRoles.PlayableScps.Scp096;
 using PlayerRoles.PlayableScps.Scp939;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using MapEvents = Exiled.Events.Handlers.Map;
-using Scp939Events = Exiled.Events.Handlers.Scp939;
-using PlayerEvents = Exiled.Events.Handlers.Player;
+using Logger = LabApi.Features.Console.Logger;
+using Scp018Projectile = InventorySystem.Items.ThrowableProjectiles.Scp018Projectile;
 
 namespace Enjoyer.DamageableObjects.API.Components;
 
@@ -25,25 +22,25 @@ public class DamageableComponent : MonoBehaviour
 {
     private const int _windowLayer = 14;
 
+    public static CachedLayerMask ExplosionBlockerMask { get; } = new("Default", "CCTV", "Door");
+
     private static IReadOnlyCollection<DamageType> _firearmDamageTypes { get; } =
     [
         DamageType.Firearm,
-        DamageType.Crossvec,
-        DamageType.Logicer,
-        DamageType.Revolver,
-        DamageType.Shotgun,
-        DamageType.AK,
-        DamageType.Com15,
-        DamageType.Com18,
-        DamageType.Fsp9,
-        DamageType.E11Sr,
+        DamageType.GunCrossvec,
+        DamageType.GunLogicer,
+        DamageType.GunRevolver,
+        DamageType.GunShotgun,
+        DamageType.GunAK,
+        DamageType.GunCom15,
+        DamageType.GunCom18,
+        DamageType.GunFsp9,
+        DamageType.GunE11Sr,
         DamageType.ParticleDisruptor,
-        DamageType.Com45,
-        DamageType.Frmg0,
-        DamageType.A7
+        DamageType.GunCom45,
+        DamageType.GunFrmg0,
+        DamageType.GunA7
     ];
-
-    public static CachedLayerMask ExplosionBlockerMask { get; } = new("Default", "CCTV", "Door");
 
     #region Properties
 
@@ -123,20 +120,16 @@ public class DamageableComponent : MonoBehaviour
     protected virtual void SubscribeEvents()
     {
         if (IsDamageTypeAllow(DamageType.Explosion))
-            MapEvents.ExplodingGrenade += OnExploding;
+            ServerEvents.ExplosionSpawned += OnExplosionSpawned;
 
-        if (IsDamageTypeAllow(_firearmDamageTypes))
-            PlayerEvents.Shot += OnShot;
-
-        if (IsDamageTypeAllow(DamageType.Scp939, DamageType.Scp))
-            Scp939Events.Clawed += OnClawed;
+        if (IsDamageTypeAllow(DamageType.Scp939))
+            Scp939Events.Attacked += OnClawed;
     }
 
     protected virtual void UnsubscribeEvents()
     {
-        MapEvents.ExplodingGrenade -= OnExploding;
-        PlayerEvents.Shot -= OnShot;
-        Scp939Events.Clawed -= OnClawed;
+        ServerEvents.ExplosionSpawned -= OnExplosionSpawned;
+        Scp939Events.Attacked -= OnClawed;
     }
 
     #endregion
@@ -147,7 +140,7 @@ public class DamageableComponent : MonoBehaviour
     {
         if (damage <= 0) return;
 
-        Log.Debug($"[ProcessDamage] Health: {Health}, damage: {damage}");
+        Logger.Debug($"[ProcessDamage] Health: {Health}, damage: {damage}");
 
         Health -= damage;
 
@@ -172,13 +165,13 @@ public class DamageableComponent : MonoBehaviour
 
     protected virtual bool CheckRaycastHit(RaycastHit hit) => this == hit.transform.GetComponentInParent<DamageableComponent>();
 
-    public static float CalculateDamage(int efficacy, float damage, float armorPenetration) =>
+    protected virtual float CalculateDamage(int efficacy, float damage, float armorPenetration) =>
         CalculateDamage(efficacy, damage, Mathf.RoundToInt(armorPenetration * 100));
 
-    public static float CalculateDamage(int efficacy, float damage, int armorPenetrationPercent) =>
+    protected virtual float CalculateDamage(int efficacy, float damage, int armorPenetrationPercent) =>
         BodyArmorUtils.ProcessDamage(efficacy, damage, armorPenetrationPercent);
 
-    public float GetDamageMultiplier(DamageType damageType)
+    public float GetDamageMultiplier(Player? player, DamageType damageType)
     {
         if (_firearmDamageTypes.Contains(damageType) && !DamageMultipliers.ContainsKey(damageType))
             return DamageMultipliers.TryGetValue(DamageType.Firearm, out float multiplier) ? multiplier : 1f;
@@ -195,90 +188,107 @@ public class DamageableComponent : MonoBehaviour
 
     #region Handlers
 
-    protected virtual void OnShot(ShotEventArgs ev)
+    protected internal virtual void OnShot(ShotArgs args)
     {
-        if (!CheckRaycastHit(ev.RaycastHit)) return;
+        Logger.Debug("Handle shot");
 
-        DamageType firearmDamageType = (DamageType)Enum.Parse(typeof(DamageType), ev.Firearm.FirearmType.ToString(), true);
+        DamageType firearmDamageType = (DamageType)Enum.Parse(typeof(DamageType), args.Firearm.ItemTypeId.ToString(), true);
         DamageType? damageType = AllowedDamageTypes?.FirstOrDefault(type => type == firearmDamageType || type is not DamageType.Firearm);
 
         if (AllowedDamageTypes is not null && damageType is null) return;
 
-        HitscanHitregModuleBase hitregModule = ev.Firearm.HitscanHitregModule;
-        float baseDamage = hitregModule.DamageAtDistance(ev.Distance) * GetDamageMultiplier(firearmDamageType);
+        float damage = CalculateShotDamage(args, firearmDamageType);
 
-        Log.Debug($"[{nameof(OnShot)}] Firearm: {ev.Firearm.FirearmType}, Damage: {baseDamage}");
+        ProcessDamage(args.Player.ReferenceHub, damage);
+    }
 
-        ProcessDamage(ev.Player.ReferenceHub, CalculateDamage(ProtectionEfficacy, baseDamage, hitregModule.EffectivePenetration));
+    protected virtual float CalculateShotDamage(ShotArgs args, DamageType damageType)
+    {
+        float baseDamage = args.HitscanHitregModule.DamageAtDistance(args.Distance) * GetDamageMultiplier(args.Player, damageType);
+        Logger.Debug($"[{nameof(OnShot)}] Firearm: {args.Firearm.ItemTypeId}, Damage: {baseDamage}");
+
+        return CalculateDamage(ProtectionEfficacy, baseDamage, args.HitscanHitregModule.EffectivePenetration);
     }
 
     protected internal virtual bool OnDisruptorSingleShot(ReferenceHub? player, float damage)
     {
-        Log.Debug($"[{nameof(OnDisruptorSingleShot)}] Trying to handle shot");
+        Logger.Debug($"[{nameof(OnDisruptorSingleShot)}] Trying to handle shot");
 
         if (!IsDamageTypeAllow(DamageType.ParticleDisruptor, DamageType.Firearm))
             return false;
 
-        damage *= GetDamageMultiplier(DamageType.ParticleDisruptor);
+        damage = CalculateDisruptorDamage(player, damage);
         ProcessDamage(player, damage);
         return true;
     }
 
-    protected virtual void OnExploding(ExplodingGrenadeEventArgs ev)
+    protected virtual float CalculateDisruptorDamage(ReferenceHub? player, float damage) => damage * GetDamageMultiplier(Player.Get(player), DamageType.ParticleDisruptor);
+
+    protected virtual void OnExplosionSpawned(ExplosionSpawnedEventArgs ev)
     {
-        Log.Debug($"[{nameof(OnExploding)}] Trying to handle Explosion");
+        Logger.Debug($"[{nameof(OnExplosionSpawned)}] Trying to handle Explosion");
 
-        if (!ev.IsAllowed || ev.Projectile.Base is not ExplosionGrenade grenade ||
-            Physics.Linecast(transform.position, ev.Position, ExplosionBlockerMask))
-            return;
+        if (Physics.Linecast(transform.position, ev.Position, ExplosionBlockerMask)) return;
 
-        float baseDamage = grenade._playerDamageOverDistance.Evaluate(Vector3.Distance(ev.Position, transform.position)) *
-                           GetDamageMultiplier(DamageType.Explosion);
+        float damage = CalculateExplosionDamage(ev);
 
-        if (baseDamage <= 0)
+        if (damage <= 0)
         {
-            Log.Debug($"[{nameof(OnExploding)}] Base damage equals 0");
+            Logger.Debug($"[{nameof(OnExplosionSpawned)}] Base damage equals 0");
             return;
         }
 
-        ProcessDamage(ev.Player.ReferenceHub, CalculateDamage(ProtectionEfficacy, baseDamage, 50));
+        ProcessDamage(ev.Player?.ReferenceHub, damage);
+    }
+
+    protected virtual float CalculateExplosionDamage(ExplosionSpawnedEventArgs ev)
+    {
+        float baseDamage = ev.Settings._playerDamageOverDistance.Evaluate(Vector3.Distance(ev.Position, transform.position)) *
+                           GetDamageMultiplier(ev.Player, DamageType.Explosion);
+
+        return CalculateDamage(ProtectionEfficacy, baseDamage, 50);
     }
 
     protected internal void OnScp018Bounce(Scp018Projectile scp018, ReferenceHub? previousOwner)
     {
-        Log.Debug($"[{nameof(OnScp018Bounce)}] Trying to handle SCP 018 Bounce");
+        Logger.Debug($"[{nameof(OnScp018Bounce)}] Trying to handle SCP 018 Bounce");
 
         if (IsDamageTypeAllow(DamageType.Scp018))
-            ProcessDamage(previousOwner, scp018.CurrentDamage, 0f);
+            ProcessDamage(previousOwner, Calculate018Damage(scp018, previousOwner), 0f);
     }
 
-    protected virtual void OnClawed(ClawedEventArgs ev)
-    {
-        if (ev.Scp939.ClawAbility.AttackTriggered || !CheckRaycastHit(ev.Player.CameraTransform)) return;
+    protected float Calculate018Damage(Scp018Projectile scp018, ReferenceHub? previousOwner) =>
+        scp018.CurrentDamage * GetDamageMultiplier(Player.Get(previousOwner), DamageType.Scp018);
 
-        Log.Debug($"[{nameof(OnClawed)}] Handle SCP 939 Claw");
+    protected virtual void OnClawed(Scp939AttackedEventArgs ev)
+    {
+        if (!CheckRaycastHit(ev.Player.Camera)) return;
+
+        Logger.Debug($"[{nameof(OnClawed)}] Handle SCP 939 Claw");
 
         ProcessDamage(ev.Player.ReferenceHub, CalculateDamage(ProtectionEfficacy,
-            Scp939ClawAbility.BaseDamage * GetDamageMultiplier(DamageType.Scp939), Scp939ClawAbility.DamagePenetration));
+            Scp939ClawAbility.BaseDamage * GetDamageMultiplier(ev.Player, DamageType.Scp939), Scp939ClawAbility.DamagePenetration));
     }
 
-    protected internal virtual bool OnLunging(ReferenceHub player, Scp939LungeAbility lunge, bool isMainTarget)
+    protected internal virtual bool OnLunging(ReferenceHub hub, Scp939LungeAbility lunge, bool isMainTarget)
     {
-        Log.Debug($"[{nameof(OnLunging)}] Trying to handle SCP 939 Lunge");
+        Logger.Debug($"[{nameof(OnLunging)}] Trying to handle SCP 939 Lunge");
 
         if (!IsDamageTypeAllow(DamageType.Scp939))
             return false;
 
+        Player player = Player.Get(hub);
+
         if (!isMainTarget)
         {
-            ProcessDamage(player, CalculateDamage(ProtectionEfficacy,
-                Scp939LungeAbility.SecondaryDamage * GetDamageMultiplier(DamageType.Scp939),
+            ProcessDamage(hub, CalculateDamage(ProtectionEfficacy,
+                Scp939LungeAbility.SecondaryDamage * GetDamageMultiplier(player, DamageType.Scp939),
                 Scp939ClawAbility.DamagePenetration), Scp939LungeAbility.SecondaryHitmarkerSize);
             return true;
         }
 
-        ProcessDamage(player, CalculateDamage(ProtectionEfficacy,
-            Scp939LungeAbility.LungeDamage * GetDamageMultiplier(DamageType.Scp939), Scp939ClawAbility.DamagePenetration));
+        ProcessDamage(hub, CalculateDamage(ProtectionEfficacy,
+            Scp939LungeAbility.LungeDamage * GetDamageMultiplier(player, DamageType.Scp939), Scp939ClawAbility.DamagePenetration));
 
         lunge.State = Scp939LungeState.LandHit;
         lunge._audio.Play(lunge._audio._hits.RandomItem(), 25f);
@@ -287,26 +297,31 @@ public class DamageableComponent : MonoBehaviour
 
     protected internal virtual bool OnScp096Attacking(ReferenceHub? player)
     {
-        Log.Debug($"[{nameof(OnScp096Attacking)}] Trying to handle SCP 096 Attack");
+        Logger.Debug($"[{nameof(OnScp096Attacking)}] Trying to handle SCP 096 Attack");
 
         if (!IsDamageTypeAllow(DamageType.Scp096)) return false;
 
-        ProcessDamage(player, Scp096AttackAbility.HumanDamage * GetDamageMultiplier(DamageType.Scp096));
+        ProcessDamage(player, CalculateScp096Attacking(player));
         return true;
     }
 
+    protected virtual float CalculateScp096Attacking(ReferenceHub? player) => Scp096AttackAbility.HumanDamage * GetDamageMultiplier(Player.Get(player), DamageType.Scp096);
+
     protected internal virtual bool OnCharging(ReferenceHub? player, bool isMainTarget)
     {
-        Log.Debug($"[{nameof(OnCharging)}] Trying to handle SCP 096 Charge");
+        Logger.Debug($"[{nameof(OnCharging)}] Trying to handle SCP 096 Charge");
 
         if (AllowedDamageTypes?.Contains(DamageType.Scp096) == false)
             return false;
 
-        float damage = isMainTarget ? Scp096ChargeAbility.DamageTarget : Scp096ChargeAbility.DamageNonTarget;
-        damage *= GetDamageMultiplier(DamageType.Scp096);
-
-        ProcessDamage(player, damage);
+        ProcessDamage(player, CalculateScp096Charge(player, isMainTarget));
         return true;
+    }
+
+    protected virtual float CalculateScp096Charge(ReferenceHub? player, bool isMainTarget)
+    {
+        float damage = isMainTarget ? Scp096ChargeAbility.DamageTarget : Scp096ChargeAbility.DamageNonTarget;
+        return damage * GetDamageMultiplier(Player.Get(player), DamageType.Scp096);
     }
 
     #endregion

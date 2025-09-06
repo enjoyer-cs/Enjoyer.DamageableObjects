@@ -11,7 +11,7 @@ using UnityEngine.Pool;
 using static HarmonyLib.AccessTools;
 using Logger = LabApi.Features.Console.Logger;
 
-namespace Enjoyer.DamageableObjects.Patches.Events.Scp939;
+namespace Enjoyer.DamageableObjects.Patches.Scp939;
 
 /// <summary>
 ///     Патч метода <see cref="Scp939Motor.OverlapCapsule" />, нужен для нанесения урона во время использования

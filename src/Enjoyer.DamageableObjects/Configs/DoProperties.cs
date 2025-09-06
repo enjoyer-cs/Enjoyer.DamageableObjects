@@ -1,5 +1,5 @@
-﻿using Enjoyer.DamageableObjects.Configs.Interfaces;
-using Exiled.API.Enums;
+﻿using Enjoyer.DamageableObjects.API.Enums;
+using Enjoyer.DamageableObjects.Configs.Interfaces;
 using System.Collections.Generic;
 using System.ComponentModel;
 
