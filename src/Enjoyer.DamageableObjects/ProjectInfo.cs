@@ -8,5 +8,5 @@ public static class ProjectInfo
     /// <summary>
     ///     Текущая версия
     /// </summary>
-    public const string Version = "1.0.2";
+    public const string Version = "2.0.0";
 }
