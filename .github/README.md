@@ -14,10 +14,10 @@ players can damage and destroy this objects during gameplay.
   - Shots from firearms
   - Explosions
   - SCP-018 interactions
-  - SCP-939 Claw & Lunge abilities
-  - SCP-096 Attack & Charge ability
+  - SCP-939 Lunge abilities
+  - SCP-096 Charge ability
   - Inprogress:
-    - Secondary shot of Particle Disruptor
+      - SCP-939 Claw & SCP-096 Attack (LMB)
     - SCP-049-2 Attack ability
     - Micro HID
 

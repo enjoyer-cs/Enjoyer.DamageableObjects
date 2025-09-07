@@ -6,12 +6,12 @@ using UnityEngine;
 
 namespace Enjoyer.DamageableObjects.Patches;
 
-[HarmonyPatch(typeof(HitscanHitregModuleBase), nameof(HitscanHitregModuleBase.ServerApplyDestructibleDamage))]
+[HarmonyPatch(typeof(HitscanHitregModuleBase), nameof(HitscanHitregModuleBase.ServerApplyObstacleDamage))]
 internal static class FirearmShotPatch
 {
-    private static void Prefix(HitscanHitregModuleBase __instance, DestructibleHitPair target)
+    private static void Postfix(HitscanHitregModuleBase __instance, HitRayPair hitInfo)
     {
-        RaycastHit hit = target.Raycast.Hit;
+        RaycastHit hit = hitInfo.Hit;
         if (hit.transform.GetComponentInParent<DamageableComponent>() is not { } damageable) return;
 
         damageable.OnShot(new ShotArgs(__instance, hit.distance));

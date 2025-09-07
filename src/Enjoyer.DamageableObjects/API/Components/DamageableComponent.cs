@@ -3,7 +3,6 @@ using InventorySystem.Items.Armor;
 using LabApi.Events.Arguments.Scp939Events;
 using LabApi.Events.Arguments.ServerEvents;
 using LabApi.Events.Handlers;
-using LabApi.Features.Wrappers;
 using PlayerRoles.PlayableScps.Scp096;
 using PlayerRoles.PlayableScps.Scp939;
 using System;
@@ -123,13 +122,13 @@ public class DamageableComponent : MonoBehaviour
             ServerEvents.ExplosionSpawned += OnExplosionSpawned;
 
         if (IsDamageTypeAllow(DamageType.Scp939))
-            Scp939Events.Attacked += OnClawed;
+            Scp939Events.Attacking += OnClawed;
     }
 
     protected virtual void UnsubscribeEvents()
     {
         ServerEvents.ExplosionSpawned -= OnExplosionSpawned;
-        Scp939Events.Attacked -= OnClawed;
+        Scp939Events.Attacking -= OnClawed;
     }
 
     #endregion
@@ -171,7 +170,7 @@ public class DamageableComponent : MonoBehaviour
     protected virtual float CalculateDamage(int efficacy, float damage, int armorPenetrationPercent) =>
         BodyArmorUtils.ProcessDamage(efficacy, damage, armorPenetrationPercent);
 
-    public float GetDamageMultiplier(Player? player, DamageType damageType)
+    public float GetDamageMultiplier(ReferenceHub? player, DamageType damageType)
     {
         if (_firearmDamageTypes.Contains(damageType) && !DamageMultipliers.ContainsKey(damageType))
             return DamageMultipliers.TryGetValue(DamageType.Firearm, out float multiplier) ? multiplier : 1f;
@@ -204,7 +203,7 @@ public class DamageableComponent : MonoBehaviour
 
     protected virtual float CalculateShotDamage(ShotArgs args, DamageType damageType)
     {
-        float baseDamage = args.HitscanHitregModule.DamageAtDistance(args.Distance) * GetDamageMultiplier(args.Player, damageType);
+        float baseDamage = args.HitscanHitregModule.DamageAtDistance(args.Distance) * GetDamageMultiplier(args.Player.ReferenceHub, damageType);
         Logger.Debug($"[{nameof(OnShot)}] Firearm: {args.Firearm.ItemTypeId}, Damage: {baseDamage}");
 
         return CalculateDamage(ProtectionEfficacy, baseDamage, args.HitscanHitregModule.EffectivePenetration);
@@ -222,7 +221,7 @@ public class DamageableComponent : MonoBehaviour
         return true;
     }
 
-    protected virtual float CalculateDisruptorDamage(ReferenceHub? player, float damage) => damage * GetDamageMultiplier(Player.Get(player), DamageType.ParticleDisruptor);
+    protected virtual float CalculateDisruptorDamage(ReferenceHub? player, float damage) => damage * GetDamageMultiplier(player, DamageType.ParticleDisruptor);
 
     protected virtual void OnExplosionSpawned(ExplosionSpawnedEventArgs ev)
     {
@@ -244,7 +243,7 @@ public class DamageableComponent : MonoBehaviour
     protected virtual float CalculateExplosionDamage(ExplosionSpawnedEventArgs ev)
     {
         float baseDamage = ev.Settings._playerDamageOverDistance.Evaluate(Vector3.Distance(ev.Position, transform.position)) *
-                           GetDamageMultiplier(ev.Player, DamageType.Explosion);
+                           GetDamageMultiplier(ev.Player?.ReferenceHub, DamageType.Explosion);
 
         return CalculateDamage(ProtectionEfficacy, baseDamage, 50);
     }
@@ -258,16 +257,17 @@ public class DamageableComponent : MonoBehaviour
     }
 
     protected float Calculate018Damage(Scp018Projectile scp018, ReferenceHub? previousOwner) =>
-        scp018.CurrentDamage * GetDamageMultiplier(Player.Get(previousOwner), DamageType.Scp018);
+        scp018.CurrentDamage * GetDamageMultiplier(previousOwner, DamageType.Scp018);
 
-    protected virtual void OnClawed(Scp939AttackedEventArgs ev)
+    protected virtual void OnClawed(Scp939AttackingEventArgs ev)
     {
-        if (!CheckRaycastHit(ev.Player.Camera)) return;
+        Logger.Error(ev.IsAllowed);
+        if (!ev.IsAllowed || !CheckRaycastHit(ev.Player.Camera)) return;
 
         Logger.Debug($"[{nameof(OnClawed)}] Handle SCP 939 Claw");
 
         ProcessDamage(ev.Player.ReferenceHub, CalculateDamage(ProtectionEfficacy,
-            Scp939ClawAbility.BaseDamage * GetDamageMultiplier(ev.Player, DamageType.Scp939), Scp939ClawAbility.DamagePenetration));
+            Scp939ClawAbility.BaseDamage * GetDamageMultiplier(ev.Player.ReferenceHub, DamageType.Scp939), Scp939ClawAbility.DamagePenetration));
     }
 
     protected internal virtual bool OnLunging(ReferenceHub hub, Scp939LungeAbility lunge, bool isMainTarget)
@@ -277,18 +277,16 @@ public class DamageableComponent : MonoBehaviour
         if (!IsDamageTypeAllow(DamageType.Scp939))
             return false;
 
-        Player player = Player.Get(hub);
-
         if (!isMainTarget)
         {
             ProcessDamage(hub, CalculateDamage(ProtectionEfficacy,
-                Scp939LungeAbility.SecondaryDamage * GetDamageMultiplier(player, DamageType.Scp939),
+                Scp939LungeAbility.SecondaryDamage * GetDamageMultiplier(hub, DamageType.Scp939),
                 Scp939ClawAbility.DamagePenetration), Scp939LungeAbility.SecondaryHitmarkerSize);
             return true;
         }
 
         ProcessDamage(hub, CalculateDamage(ProtectionEfficacy,
-            Scp939LungeAbility.LungeDamage * GetDamageMultiplier(player, DamageType.Scp939), Scp939ClawAbility.DamagePenetration));
+            Scp939LungeAbility.LungeDamage * GetDamageMultiplier(hub, DamageType.Scp939), Scp939ClawAbility.DamagePenetration));
 
         lunge.State = Scp939LungeState.LandHit;
         lunge._audio.Play(lunge._audio._hits.RandomItem(), 25f);
@@ -305,7 +303,7 @@ public class DamageableComponent : MonoBehaviour
         return true;
     }
 
-    protected virtual float CalculateScp096Attacking(ReferenceHub? player) => Scp096AttackAbility.HumanDamage * GetDamageMultiplier(Player.Get(player), DamageType.Scp096);
+    protected virtual float CalculateScp096Attacking(ReferenceHub? player) => Scp096AttackAbility.HumanDamage * GetDamageMultiplier(player, DamageType.Scp096);
 
     protected internal virtual bool OnCharging(ReferenceHub? player, bool isMainTarget)
     {
@@ -321,7 +319,7 @@ public class DamageableComponent : MonoBehaviour
     protected virtual float CalculateScp096Charge(ReferenceHub? player, bool isMainTarget)
     {
         float damage = isMainTarget ? Scp096ChargeAbility.DamageTarget : Scp096ChargeAbility.DamageNonTarget;
-        return damage * GetDamageMultiplier(Player.Get(player), DamageType.Scp096);
+        return damage * GetDamageMultiplier(player, DamageType.Scp096);
     }
 
     #endregion
