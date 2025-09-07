@@ -17,7 +17,7 @@ players can damage and destroy this objects during gameplay.
   - SCP-939 Lunge abilities
   - SCP-096 Charge ability
   - Inprogress:
-      - SCP-939 Claw & SCP-096 Attack (LMB)
+    - SCP-939 Claw & SCP-096 Attack (LMB)
     - SCP-049-2 Attack ability
     - Micro HID
 
@@ -34,4 +34,6 @@ players can damage and destroy this objects during gameplay.
   It can be used in other plugins as well, such as the shield plugin. But soon I plan to rework the code for better adaptability and versatility
 
 ## Dependencies
+- Harmony
 - [ProjectMER](https://github.com/Michal78900/ProjectMER) (optional)
+
