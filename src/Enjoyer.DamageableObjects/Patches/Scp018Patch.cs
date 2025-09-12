@@ -22,7 +22,8 @@ internal static class Scp018Patch
     {
         try
         {
-            List<DamageableComponent> ignoreComponents = _processedComponents.GetOrAdd(scp018, () => []);
+            List<DamageableComponent> ignoreComponents = _processedComponents.GetOrAddNew(scp018);
+
             if (!collider.transform.TryGetComponentInParent(out DamageableComponent damageable) || ignoreComponents.Contains(damageable))
                 return;
 
@@ -35,9 +36,14 @@ internal static class Scp018Patch
         }
     }
 
+    private static void Finalizer(Exception? __exception)
+    {
+        if (__exception != null) Logger.Error(__exception);
+    }
+
     private static void Postfix(Scp018Projectile __instance) => _processedComponents.Remove(__instance);
 
-    private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
+    private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
     {
         ListPool<CodeInstruction>.Get(out List<CodeInstruction> newInstructions);
         newInstructions.AddRange(instructions);

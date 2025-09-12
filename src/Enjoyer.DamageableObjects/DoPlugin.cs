@@ -1,6 +1,7 @@
 ﻿using Enjoyer.DamageableObjects.Configs;
-using Enjoyer.DamageableObjects.EventHandlers;
+using Enjoyer.DamageableObjects.Handlers;
 using HarmonyLib;
+using LabApi.Features.Console;
 using LabApi.Loader.Features.Plugins;
 using System;
 
@@ -11,7 +12,9 @@ namespace Enjoyer.DamageableObjects;
 /// </summary>
 public sealed class DoPlugin : Plugin<DoConfig>
 {
-    private EventHandlers.EventHandlers? _handlers;
+    private EventHandlers? _handlers;
+
+    private static bool _isDebugMode => PluginConfig.Debug;
 
     private Harmony _harmony { get; } = new("damageableobjects.enjoyer-cs");
 
@@ -34,13 +37,15 @@ public sealed class DoPlugin : Plugin<DoConfig>
 
     public override Version RequiredApiVersion { get; } = new(1, 1, 1);
 
+    internal static void SendDebug(object? message) => Logger.Debug(message!, _isDebugMode);
+
     /// <inheritdoc />
     public override void Enable()
     {
 #if MER
         _handlers = new MerEventHandlers();
 #else
-        _handlers = new EventHandlers.EventHandlers();
+        _handlers = new EventHandlers();
 #endif
 
         _handlers.RegisterEvents();

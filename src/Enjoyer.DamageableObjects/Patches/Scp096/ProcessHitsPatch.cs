@@ -14,19 +14,21 @@ using Logger = LabApi.Features.Console.Logger;
 namespace Enjoyer.DamageableObjects.Patches.Scp096;
 
 [HarmonyPatch(typeof(Scp096HitHandler), nameof(Scp096HitHandler.ProcessHits))]
-public class ProcessHitsPatch
+internal static class ProcessHitsPatch
 {
     /// <summary>
     ///     Компоненты, обработанные при последнем использовании <see cref="Scp096ChargeAbility" />.
     /// </summary>
     internal static Dictionary<Scp096Role, List<DamageableComponent>> _chargeAttackedComponents { get; } = [];
 
-    /// <summary>
-    ///     Компоненты, обработанные при последнем использовании <see cref="Scp096AttackAbility" />.
-    /// </summary>
     internal static Dictionary<Scp096Role, List<DamageableComponent>> _attackedComponents { get; } = [];
 
-    private static void HandleDetection(Collider detection, ReferenceHub? player, Scp096Role role)
+    private static void Finalizer(Exception? __exception)
+    {
+        if (__exception != null) Logger.Error(__exception);
+    }
+
+    private static void HandleDetection(Collider detection, ReferenceHub? hub, Scp096Role role)
     {
         try
         {
@@ -39,13 +41,16 @@ public class ProcessHitsPatch
                 case Scp096AbilityState.Attacking:
                     ignoreComponents = _attackedComponents.GetOrAdd(role, () => []);
 
-                    if (!ignoreComponents.Contains(damageable) && damageable.OnScp096Attacking(player))
-                        ignoreComponents.Add(damageable);
+                    if (ignoreComponents.Contains(damageable)) break;
+
+                    ignoreComponents.Add(damageable);
+                    damageable.OnScp096Attacking(hub);
+
                     break;
                 case Scp096AbilityState.Charging:
                     ignoreComponents = _chargeAttackedComponents.GetOrAdd(role, () => []);
 
-                    if (!ignoreComponents.Contains(damageable) && damageable.OnCharging(player, ignoreComponents.IsEmpty()))
+                    if (!ignoreComponents.Contains(damageable) && damageable.OnCharging(hub, ignoreComponents.IsEmpty()))
                         ignoreComponents.Add(damageable);
                     break;
             }

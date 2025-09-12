@@ -25,6 +25,11 @@ internal static class MotorOverlapCapsulePatch
     /// </summary>
     internal static Dictionary<Scp939LungeAbility, List<DamageableComponent>> _processedComponents { get; } = [];
 
+    private static void Finalizer(Exception? __exception)
+    {
+        if (__exception != null) Logger.Error(__exception);
+    }
+
     private static void HandleDetection(Collider detection, ReferenceHub player, Scp939LungeAbility lunge)
     {
         try

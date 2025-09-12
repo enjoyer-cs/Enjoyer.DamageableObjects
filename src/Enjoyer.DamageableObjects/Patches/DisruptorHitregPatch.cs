@@ -18,6 +18,11 @@ namespace Enjoyer.DamageableObjects.Patches;
 [HarmonyPatch(typeof(DisruptorHitregModule), nameof(DisruptorHitregModule.PrescanSingle))]
 internal static class DisruptorHitregPatch
 {
+    private static void Finalizer(Exception? __exception)
+    {
+        if (__exception != null) Logger.Error(__exception);
+    }
+
     private static void HandleHit(DisruptorHitregModule module, RaycastHit? hit, ReferenceHub? player)
     {
         try

@@ -1,7 +1,6 @@
-﻿using Exiled.API.Features.Doors;
-using Exiled.Events.EventArgs.Map;
-using Exiled.Events.EventArgs.Player;
-using Interactables.Interobjects.DoorUtils;
+﻿using Interactables.Interobjects.DoorUtils;
+using LabApi.Events.Arguments.ServerEvents;
+using LabApi.Features.Wrappers;
 using PlayerRoles.PlayableScps.Scp939;
 
 namespace Enjoyer.DamageableObjects.API.Components;
@@ -20,32 +19,34 @@ public sealed class DamageableDoor : DamageableComponent
     /// <inheritdoc />
     protected override void Start()
     {
-        Door.IgnoredDamage = _doorIgnoredDamage;
+        Door.IgnoreDamageSources = _doorIgnoredDamage;
         base.Start();
     }
 
     /// <inheritdoc />
-    protected override void OnShot(ShotEventArgs ev)
+    protected internal override void OnShot(ShotArgs args)
     {
-        if (ev.Firearm.Type is ItemType.ParticleDisruptor && !_doorIgnoredDamage.HasFlag(DoorDamageType.ParticleDisruptor))
+        if (args.Firearm.ItemTypeId is ItemType.ParticleDisruptor && !_doorIgnoredDamage.HasFlag(DoorDamageType.ParticleDisruptor))
             return;
 
-        base.OnShot(ev);
+        base.OnShot(args);
     }
 
     /// <inheritdoc />
-    protected override void OnExploding(ExplodingGrenadeEventArgs ev)
+    protected override void OnExplosionSpawned(ExplosionSpawnedEventArgs ev)
     {
         if (_doorIgnoredDamage.HasFlag(DoorDamageType.Grenade))
-            base.OnExploding(ev);
+            base.OnExplosionSpawned(ev);
     }
 
     /// <inheritdoc />
     protected internal override bool OnLunging(ReferenceHub player, Scp939LungeAbility lunge, bool isMainTarget) =>
-        !Door.IsFullyOpen && base.OnLunging(player, lunge, isMainTarget);
+        Door.ExactState == 0 && base.OnLunging(player, lunge, isMainTarget);
 
     /// <inheritdoc />
-    protected internal override bool OnScp096Attacking(ReferenceHub? player) => true;
+    protected internal override void OnScp096Attacking(ReferenceHub player)
+    {
+    }
 
     /// <inheritdoc />
     protected internal override bool OnCharging(ReferenceHub? player, bool isMainTarget) => true;
@@ -54,12 +55,7 @@ public sealed class DamageableDoor : DamageableComponent
     protected override void ProcessDamage(ReferenceHub? damageDealer, float damage, float hitMarkerSize = 1f)
     {
         hitMarkerSize = HitMarkerSize;
-
-        if (Door.IsDestroyed)
-        {
-            Destroy(this);
-            return;
-        }
+        if (Door.IsDestroyed) return;
 
         base.ProcessDamage(damageDealer, damage, hitMarkerSize);
     }
@@ -67,8 +63,8 @@ public sealed class DamageableDoor : DamageableComponent
     /// <inheritdoc />
     protected override void DestroyByDamage(ReferenceHub? destroyer)
     {
-        Door.Break();
-        Destroy(this);
+        Health = MaxHealth;
+        Door.TryBreak();
         OnDestroyedByDamage?.Invoke(gameObject, destroyer);
     }
 }
