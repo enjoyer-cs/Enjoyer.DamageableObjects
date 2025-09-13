@@ -26,7 +26,7 @@ public struct DamageableDoorsProperties : IDoProperties
     public int DamageResistance { get; set; }
 
     [Description("DoorDamageType that not could be modified")]
-    public DoorDamageType NotAffectToDamage { get; set; }
+    public DoorDamageType NotAffectToDamage { get; set; } = DoorDamageType.None;
 
     /// <inheritdoc />
     [Description(

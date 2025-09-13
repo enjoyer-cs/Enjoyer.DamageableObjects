@@ -2,7 +2,7 @@
 
 public enum DamageType
 {
-    Firearm = 0,
+    Firearm,
 
     Explosion,
 
