@@ -1,8 +1,13 @@
-# DamageableObjects - 2.1.0
+# DamageableObjects - 2.1.1
 
 This plugin for LabAPI adds support for **damageable objects** in SCP: Secret Laboratory.
 These objects can be either **MapEditorReborn schematics** or other GameObjects via modding,
 players can damage and destroy this objects during gameplay.
+
+#### documentation:
+
+[RU](https://github.com/enjoyer-cs/Enjoyer.DamageableObjects/tree/master/.github/docs/ru/Configuring.md)
+| [EN](https://github.com/enjoyer-cs/Enjoyer.DamageableObjects/tree/master/.github/docs/en/Configuring.md)
 
 ## Features
 
