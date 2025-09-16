@@ -42,5 +42,6 @@ internal class EventHandlers
         }
     }
 
-    private static void OnCharging(Scp096ChargingEventArgs ev) => ProcessHitsPatch._chargeAttackedComponents.Remove((Scp096Role)ev.Player.RoleBase);
+    private static void OnCharging(Scp096ChargingEventArgs ev) =>
+        ProcessHitsPatch._chargeAttackedComponents.Remove((Scp096Role)ev.Player.RoleBase);
 }

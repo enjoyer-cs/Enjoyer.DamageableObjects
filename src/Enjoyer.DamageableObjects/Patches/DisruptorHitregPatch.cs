@@ -66,7 +66,10 @@ internal static class DisruptorHitregPatch
         newInstructions.InsertRange(
             targetIndex, new List<CodeInstruction>
             {
-                new(OpCodes.Ldarg_0), new(OpCodes.Ldloc_1), new(OpCodes.Ldloc_S, ownerLocal.LocalIndex), new(OpCodes.Call, Method(typeof(DisruptorHitregPatch), nameof(HandleHit)))
+                new(OpCodes.Ldarg_0),
+                new(OpCodes.Ldloc_1),
+                new(OpCodes.Ldloc_S, ownerLocal.LocalIndex),
+                new(OpCodes.Call, Method(typeof(DisruptorHitregPatch), nameof(HandleHit)))
             });
 
         foreach (CodeInstruction instruction in newInstructions)

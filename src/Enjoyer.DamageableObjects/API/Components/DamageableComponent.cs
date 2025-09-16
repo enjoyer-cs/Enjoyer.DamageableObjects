@@ -180,7 +180,7 @@ public class DamageableComponent : MonoBehaviour
     {
         DoPlugin.SendDebug("Handle shot");
 
-        DamageType firearmDamageType = (DamageType)Enum.Parse(typeof(DamageType), args.Firearm.ItemTypeId.ToString(), true);
+        var firearmDamageType = (DamageType)Enum.Parse(typeof(DamageType), args.Firearm.ItemTypeId.ToString(), true);
         DamageType? damageType = AllowedDamageTypes?.FirstOrDefault(type => type == firearmDamageType || type is not DamageType.Firearm);
 
         if (AllowedDamageTypes is not null && damageType is null) return;
@@ -192,7 +192,9 @@ public class DamageableComponent : MonoBehaviour
 
     protected virtual float CalculateShotDamage(ShotArgs args, DamageType damageType)
     {
-        float baseDamage = args.HitscanHitregModule.DamageAtDistance(args.Distance) * GetDamageMultiplier(args.Player.ReferenceHub, damageType);
+        float baseDamage = args.HitscanHitregModule.DamageAtDistance(args.Distance) *
+                           GetDamageMultiplier(args.Player.ReferenceHub, damageType);
+
         DoPlugin.SendDebug($"[{nameof(OnShot)}] Firearm: {args.Firearm.ItemTypeId}, Damage: {baseDamage}");
 
         return CalculateDamage(ProtectionEfficacy, baseDamage, args.HitscanHitregModule.EffectivePenetration);
@@ -210,7 +212,8 @@ public class DamageableComponent : MonoBehaviour
         return true;
     }
 
-    protected virtual float CalculateDisruptorDamage(ReferenceHub? player, float damage) => damage * GetDamageMultiplier(player, DamageType.ParticleDisruptor);
+    protected virtual float CalculateDisruptorDamage(ReferenceHub? player, float damage) =>
+        damage * GetDamageMultiplier(player, DamageType.ParticleDisruptor);
 
     protected virtual void OnExplosionSpawned(ExplosionSpawnedEventArgs ev)
     {
@@ -290,7 +293,8 @@ public class DamageableComponent : MonoBehaviour
         ProcessDamage(hub, CalculateScp096Attacked(hub));
     }
 
-    protected virtual float CalculateScp096Attacked(ReferenceHub? player) => Scp096AttackAbility.HumanDamage * GetDamageMultiplier(player, DamageType.Scp096);
+    protected virtual float CalculateScp096Attacked(ReferenceHub? player) =>
+        Scp096AttackAbility.HumanDamage * GetDamageMultiplier(player, DamageType.Scp096);
 
     protected internal virtual bool OnCharging(ReferenceHub? player, bool isMainTarget)
     {

@@ -27,7 +27,8 @@ internal static class ScpAttackPatch
         typeof(ScpAttackAbilityBase<Scp939Role>)
     ];
 
-    private static IEnumerable<MethodBase> TargetMethods() => _targetTypes.Select(targetType => Method(targetType, nameof(ScpAttackAbilityBase<>.DetectDestructibles)));
+    private static IEnumerable<MethodBase> TargetMethods() =>
+        _targetTypes.Select(targetType => Method(targetType, nameof(ScpAttackAbilityBase<>.DetectDestructibles)));
 
     private static void Finalizer(Exception? __exception)
     {
@@ -80,7 +81,9 @@ internal static class ScpAttackPatch
         newInstructions.InsertRange(
             targetIndex, new List<CodeInstruction>
             {
-                new(OpCodes.Ldloc_S, targetInstruction.operand), new(OpCodes.Ldarg_0), new(OpCodes.Call, Method(typeof(ScpAttackPatch), nameof(HandleDetection)))
+                new(OpCodes.Ldloc_S, targetInstruction.operand),
+                new(OpCodes.Ldarg_0),
+                new(OpCodes.Call, Method(typeof(ScpAttackPatch), nameof(HandleDetection)))
             });
 
         foreach (CodeInstruction instruction in newInstructions)
