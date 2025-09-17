@@ -251,9 +251,9 @@ public class DamageableComponent : MonoBehaviour
     protected float Calculate018Damage(Scp018Projectile scp018, ReferenceHub? previousOwner) =>
         scp018.CurrentDamage * GetDamageMultiplier(previousOwner, DamageType.Scp018);
 
-    protected internal virtual void OnClawed(ReferenceHub hub)
+    protected internal virtual void OnScp939Clawing(ReferenceHub hub)
     {
-        DoPlugin.SendDebug($"[{nameof(OnClawed)}] Trying to handle SCP 939 Claw.");
+        DoPlugin.SendDebug($"[{nameof(OnScp939Clawing)}] Trying to handle SCP 939 Claw.");
 
         if (!IsDamageTypeAllow(DamageType.Scp939)) return;
 
@@ -261,9 +261,9 @@ public class DamageableComponent : MonoBehaviour
             Scp939ClawAbility.BaseDamage * GetDamageMultiplier(hub, DamageType.Scp939), Scp939ClawAbility.DamagePenetration));
     }
 
-    protected internal virtual bool OnLunging(ReferenceHub hub, Scp939LungeAbility lunge, bool isMainTarget)
+    protected internal virtual bool OnScp939Lunging(ReferenceHub hub, Scp939LungeAbility lunge, bool isMainTarget)
     {
-        DoPlugin.SendDebug($"[{nameof(OnLunging)}] Trying to handle SCP 939 Lunge");
+        DoPlugin.SendDebug($"[{nameof(OnScp939Lunging)}] Trying to handle SCP 939 Lunge");
 
         if (!IsDamageTypeAllow(DamageType.Scp939))
             return false;
@@ -284,55 +284,55 @@ public class DamageableComponent : MonoBehaviour
         return true;
     }
 
-    protected internal virtual void OnScp096Attacking(ReferenceHub hub)
+    protected internal virtual void OnScp096Attacking(ReferenceHub? hub)
     {
         DoPlugin.SendDebug($"[{nameof(OnScp096Attacking)}] Trying to handle SCP 096 Attack.");
 
         if (!IsDamageTypeAllow(DamageType.Scp096)) return;
 
-        ProcessDamage(hub, CalculateScp096Attacked(hub));
+        ProcessDamage(hub, CalculateScp096Attacking(hub));
     }
 
-    protected virtual float CalculateScp096Attacked(ReferenceHub? player) =>
-        Scp096AttackAbility.HumanDamage * GetDamageMultiplier(player, DamageType.Scp096);
+    protected virtual float CalculateScp096Attacking(ReferenceHub? hub) =>
+        Scp096AttackAbility.HumanDamage * GetDamageMultiplier(hub, DamageType.Scp096);
 
-    protected internal virtual bool OnCharging(ReferenceHub? player, bool isMainTarget)
+    protected internal virtual bool OnScp096Charging(ReferenceHub? hub, bool isMainTarget)
     {
-        DoPlugin.SendDebug($"[{nameof(OnCharging)}] Trying to handle SCP 096 Charge");
+        DoPlugin.SendDebug($"[{nameof(OnScp096Charging)}] Trying to handle SCP 096 Charge");
 
         if (!IsDamageTypeAllow(DamageType.Scp096)) return false;
 
-        ProcessDamage(player, CalculateScp096Charge(player, isMainTarget));
+        ProcessDamage(hub, CalculateScp096Charging(hub, isMainTarget));
         return true;
     }
 
-    protected virtual float CalculateScp096Charge(ReferenceHub? player, bool isMainTarget)
+    protected virtual float CalculateScp096Charging(ReferenceHub? hub, bool isMainTarget)
     {
         float damage = isMainTarget ? Scp096ChargeAbility.DamageTarget : Scp096ChargeAbility.DamageNonTarget;
-        return damage * GetDamageMultiplier(player, DamageType.Scp096);
+        return damage * GetDamageMultiplier(hub, DamageType.Scp096);
     }
 
-    protected internal virtual void OnScp3114Slaped(ReferenceHub hub)
+    protected internal virtual void OnScp3114Slapping(ReferenceHub hub)
     {
-        DoPlugin.SendDebug($"[{nameof(OnScp3114Slaped)}] Trying to handle SCP 3114 Slap");
+        DoPlugin.SendDebug($"[{nameof(OnScp3114Slapping)}] Trying to handle SCP 3114 Slap");
 
         if (!IsDamageTypeAllow(DamageType.Scp3114)) return;
 
-        ProcessDamage(hub, CalculateScp3114Slaped(hub));
+        ProcessDamage(hub, CalculateScp3114Slapping(hub));
     }
 
-    protected virtual float CalculateScp3114Slaped(ReferenceHub? player) => 15 * GetDamageMultiplier(player, DamageType.Scp3114);
+    protected virtual float CalculateScp3114Slapping(ReferenceHub hub) => 15 * GetDamageMultiplier(hub, DamageType.Scp3114);
 
-    protected internal virtual void OnScp0492Attacked(ReferenceHub hub)
+    protected internal virtual void OnScp0492Attacking(ReferenceHub hub)
     {
-        DoPlugin.SendDebug($"[{nameof(OnScp0492Attacked)}] Trying to handle SCP 0492 Slap");
+        DoPlugin.SendDebug($"[{nameof(OnScp0492Attacking)}] Trying to handle SCP 0492 Slap");
 
         if (!IsDamageTypeAllow(DamageType.Scp0492)) return;
 
-        ProcessDamage(hub, CalculateScp0492Attacked(hub));
+        ProcessDamage(hub, CalculateScp0492Attacking(hub));
     }
 
-    protected virtual float CalculateScp0492Attacked(ReferenceHub? player) => 40 * GetDamageMultiplier(player, DamageType.Scp0492);
+    protected virtual float CalculateScp0492Attacking(ReferenceHub hub) => 40 * GetDamageMultiplier(hub, DamageType.Scp0492);
 
     #endregion
 }

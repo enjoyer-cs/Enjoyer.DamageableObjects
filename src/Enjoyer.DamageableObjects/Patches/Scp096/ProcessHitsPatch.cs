@@ -50,7 +50,7 @@ internal static class ProcessHitsPatch
                 case Scp096AbilityState.Charging:
                     ignoreComponents = _chargeAttackedComponents.GetOrAdd(role, () => []);
 
-                    if (!ignoreComponents.Contains(damageable) && damageable.OnCharging(hub, ignoreComponents.IsEmpty()))
+                    if (!ignoreComponents.Contains(damageable) && damageable.OnScp096Charging(hub, ignoreComponents.IsEmpty()))
                         ignoreComponents.Add(damageable);
                     break;
             }

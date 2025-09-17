@@ -40,16 +40,16 @@ public sealed class DamageableDoor : DamageableComponent
     }
 
     /// <inheritdoc />
-    protected internal override bool OnLunging(ReferenceHub player, Scp939LungeAbility lunge, bool isMainTarget) =>
-        Door.ExactState == 0 && base.OnLunging(player, lunge, isMainTarget);
+    protected internal override bool OnScp939Lunging(ReferenceHub player, Scp939LungeAbility lunge, bool isMainTarget) =>
+        Door.ExactState == 0 && base.OnScp939Lunging(player, lunge, isMainTarget);
 
     /// <inheritdoc />
-    protected internal override void OnScp096Attacking(ReferenceHub player)
+    protected internal override void OnScp096Attacking(ReferenceHub? player)
     {
     }
 
     /// <inheritdoc />
-    protected internal override bool OnCharging(ReferenceHub? player, bool isMainTarget) => true;
+    protected internal override bool OnScp096Charging(ReferenceHub? hub, bool isMainTarget) => true;
 
     /// <inheritdoc />
     protected override void ProcessDamage(ReferenceHub? damageDealer, float damage, float hitMarkerSize = 1f)

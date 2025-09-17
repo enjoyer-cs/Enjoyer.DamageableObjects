@@ -50,13 +50,13 @@ internal static class ScpAttackPatch
             switch (hub.roleManager.CurrentRole.RoleTypeId)
             {
                 case RoleTypeId.Scp0492:
-                    damageable.OnScp0492Attacked(hub);
+                    damageable.OnScp0492Attacking(hub);
                     break;
                 case RoleTypeId.Scp3114:
-                    damageable.OnScp3114Slaped(hub);
+                    damageable.OnScp3114Slapping(hub);
                     break;
                 case RoleTypeId.Scp939:
-                    damageable.OnClawed(hub);
+                    damageable.OnScp939Clawing(hub);
                     break;
                 default:
                     DoPlugin.SendDebug($"Player {hub} hasn't required role");

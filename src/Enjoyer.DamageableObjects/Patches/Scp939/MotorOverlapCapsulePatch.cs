@@ -37,7 +37,7 @@ internal static class MotorOverlapCapsulePatch
             List<DamageableComponent>? ignoreComponents = _processedComponents.GetOrAdd(lunge, () => []);
 
             if (detection.GetComponentInParent<DamageableComponent>() is not { } damageable ||
-                ignoreComponents.Contains(damageable) || !damageable.OnLunging(player, lunge, _processedComponents[lunge].IsEmpty()))
+                ignoreComponents.Contains(damageable) || !damageable.OnScp939Lunging(player, lunge, _processedComponents[lunge].IsEmpty()))
                 return;
 
             ignoreComponents.Add(damageable);
