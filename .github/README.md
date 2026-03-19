@@ -1,4 +1,4 @@
-# DamageableObjects - 2.1.1
+# DamageableObjects - 2.1.2
 
 This plugin for LabAPI adds support for **damageable objects** in SCP: Secret Laboratory.
 These objects can be either **MapEditorReborn schematics** or other GameObjects via modding,

@@ -52,7 +52,7 @@ public sealed class DamageableDoor : DamageableComponent
     protected internal override bool OnScp096Charging(ReferenceHub? hub, bool isMainTarget) => true;
 
     /// <inheritdoc />
-    protected override void ProcessDamage(ReferenceHub? damageDealer, float damage, float hitMarkerSize = 1f)
+    public override void ProcessDamage(ReferenceHub? damageDealer, float damage, float hitMarkerSize = 1f)
     {
         hitMarkerSize = HitMarkerSize;
         if (Door.IsDestroyed) return;

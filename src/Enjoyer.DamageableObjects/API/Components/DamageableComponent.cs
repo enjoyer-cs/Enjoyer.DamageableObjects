@@ -126,7 +126,7 @@ public class DamageableComponent : MonoBehaviour
 
     #region General Methods
 
-    protected virtual void ProcessDamage(ReferenceHub? damageDealer, float damage, float hitMarkerSize = 1f)
+    public virtual void ProcessDamage(ReferenceHub? damageDealer, float damage, float hitMarkerSize = 1f)
     {
         if (damage <= 0) return;
 
