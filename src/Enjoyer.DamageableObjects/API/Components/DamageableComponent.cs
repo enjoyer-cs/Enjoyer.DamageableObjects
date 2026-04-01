@@ -1,5 +1,7 @@
 ﻿using Enjoyer.DamageableObjects.API.Enums;
 using InventorySystem.Items.Armor;
+using InventorySystem.Items.Jailbird;
+using InventorySystem.Items.Scp1509;
 using LabApi.Events.Arguments.ServerEvents;
 using LabApi.Events.Handlers;
 using PlayerRoles.PlayableScps.Scp096;
@@ -333,6 +335,26 @@ public class DamageableComponent : MonoBehaviour
     }
 
     protected virtual float CalculateScp0492Attacking(ReferenceHub hub) => 40 * GetDamageMultiplier(hub, DamageType.Scp0492);
+
+    protected internal virtual void OnScp1509Hit(ReferenceHub hub, Scp1509Item item)
+    {
+        if (!IsDamageTypeAllow(DamageType.Scp1509)) return;
+
+        ProcessDamage(hub, CalculateScp1509Hit(hub, item));
+    }
+
+    protected virtual float CalculateScp1509Hit(ReferenceHub hub, Scp1509Item item) =>
+        item.MeleeDamage * GetDamageMultiplier(hub, DamageType.Scp1509);
+
+    protected internal virtual void OnJailbirdHit(ReferenceHub hub, JailbirdItem item)
+    {
+        if (!IsDamageTypeAllow(DamageType.Jailbird)) return;
+
+        ProcessDamage(hub, CalculateJailbirdHit(hub, item));
+    }
+
+    protected virtual float CalculateJailbirdHit(ReferenceHub hub, JailbirdItem item) =>
+        item.MovementOverrideActive ? item._chargeDamage : item.MeleeDamage * GetDamageMultiplier(hub, DamageType.Jailbird);
 
     #endregion
 }

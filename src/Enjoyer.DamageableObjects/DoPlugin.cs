@@ -35,7 +35,7 @@ public sealed class DoPlugin : Plugin<DoConfig>
     /// <inheritdoc />
     public override Version Version { get; } = new(ProjectInfo.Version);
 
-    public override Version RequiredApiVersion { get; } = new(1, 1, 1);
+    public override Version RequiredApiVersion { get; } = new(1, 1, 6);
 
     internal static void SendDebug(object? message) => Logger.Debug(message!, _isDebugMode);
 

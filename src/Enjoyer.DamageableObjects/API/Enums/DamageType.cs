@@ -8,7 +8,7 @@ public enum DamageType
     Scp096,
     Scp0492,
     Scp3114,
-    MicroHID,
+    Scp1509,
     Scp018,
     GunCrossvec,
     GunLogicer,
@@ -22,5 +22,6 @@ public enum DamageType
     ParticleDisruptor,
     GunCom45,
     GunFrmg0,
-    GunA7
+    GunA7,
+    Jailbird
 }
